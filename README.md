@@ -1,4 +1,4 @@
-# DBDM
+![image](https://github.com/vpz4/DBDM/assets/15791743/cd080fb6-135e-4081-9253-e0c54d92574b)# DBDM
 **An open-source toolkit for data bias detection and mitigation**
 
 ## Description
@@ -34,8 +34,25 @@ git clone https://github.com/vpz4/DBDM.git
 cd DBDM
 pip install pandas numpy
 ```
+## Example of console output
+runfile('C:/DBDM/DBDM_prompt_general_facets_v01.py', wdir='C:/DBDM')
+Enter the path to your dataset (Excel file): test.xlsx
+Enter the column name for the facet (e.g., Gender): Gender
+Enter the column name for the outcome (e.g., Lymphoma): Lymphoma
+Enter the column name for subgroup categorization (optional, press Enter to skip): 
+Enter the label value or threshold for positive outcomes (e.g., 1): 1
 
-![image](https://github.com/vpz4/DBDM/assets/15791743/6eeab441-e04f-4e91-b003-173b571952ef)
+Calculating pre-training data bias metrics...
+- CI for Gender is 0.897872340425532
+>> Warning: Significant bias detected based on CI metric!
+- DPL for Gender given the outcome Lymphoma = 1 is 0.005455904334828107
+- Average DD for Gender given the outcome Lymphoma is: -1.0408340855860843e-17
+- Average CDD: Subgroup was not provided.
+- Jensen-Shannon Divergence between Gender and Lymphoma is 4.7313507784679104e-05
+- L2 norm between Gender and Lymphoma is 0.007715813905324001
+- TVD for Gender given Lymphoma is 527.5
+>> Warning: Significant bias detected based on TVD metric!
+- KS metric between Gender and Lymphoma is 0.005455904334828107
 
 ## Contribution
 Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
