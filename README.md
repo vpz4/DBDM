@@ -23,7 +23,7 @@ To install the toolkit, clone the repository and set up the required environment
 
 ```bash
 git clone https://github.com/vpz4/DBDM.git
-cd data-bias-detection
+cd DBDM
 pip install pandas numpy
 ```
 
