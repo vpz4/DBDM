@@ -122,7 +122,12 @@ def kolmogorov_smirnov_metric(Pa, Pd):
 
 
 def get_user_input():
-    file_path = input("Enter the path to your dataset (Excel file): ")
+    file_path = input("Enter the path to your dataset (CSV or JSON file): ")
+    
+    if not file_path.lower().endswith(('.csv', '.json')):
+        print("Unsupported file type. Please provide a CSV or JSON file.")
+        return None
+    
     facet_column = input("Enter the column name for the facet (e.g., Gender): ")
     outcome_column = input("Enter the column name for the outcome (e.g., Lymphoma): ")
     subgroup_column = input("Enter the column name for subgroup categorization (optional, press Enter to skip): ")
@@ -135,10 +140,12 @@ def get_user_input():
     
     return file_path, facet_column, outcome_column, subgroup_column, label_value
 
-
 def load_data(file_path):
     try:
-        return pd.read_excel(file_path)
+        if file_path.lower().endswith('.csv'):
+            return pd.read_csv(file_path)
+        elif file_path.lower().endswith('.json'):
+            return pd.read_json(file_path)
     except Exception as e:
         print(f"Failed to load data: {e}")
         return None
