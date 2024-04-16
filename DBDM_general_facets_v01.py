@@ -12,16 +12,6 @@ import os
 os.chdir(os.getcwd())
 
 def calculate_generalized_imbalance(df, facet_column):
-    """
-    Calculate a generalized imbalance measure for multiple facets.
-
-    Parameters:
-    - df (DataFrame): DataFrame containing the data.
-    - facet_column (str): The column in df that distinguishes between facets.
-
-    Returns:
-    - float: A generalized imbalance measure.
-    """
     facet_counts = df[facet_column].value_counts()
     total = facet_counts.sum()
     proportions = facet_counts / total
@@ -30,220 +20,79 @@ def calculate_generalized_imbalance(df, facet_column):
 
 
 def calculate_difference_in_proportions(na1, na, nd1, nd):
-    """
-    Calculate the Difference in Proportions of Labels (DPL).
-
-    Parameters:
-    - na1 (int): Number of members of facet a with a positive outcome.
-    - na (int): Total number of members of facet a.
-    - nd1 (int): Number of members of facet d with a positive outcome.
-    - nd (int): Total number of members of facet d.
-
-    Returns:
-    - float: The Difference in Proportions of Labels (DPL).
-
-    Description:
-    - DPL values are normalized between -1 and 1.
-    - Positive DPL indicates a higher proportion of positive outcomes in facet a compared to facet d.
-    - DPL = 0 indicates demographic parity between the two facets.
-    - Negative DPL indicates a higher proportion of positive outcomes in facet d compared to facet a.
-    """
-    # Ensure that the denominators are not zero to avoid division by zero
     if na == 0 or nd == 0:
         raise ValueError("Total number of members for either facet a or d cannot be zero.")
 
-    # Calculate the proportions for each facet
-    qa = na1 / na if na > 0 else 0  # Proportion of positive outcomes in facet a
-    qd = nd1 / nd if nd > 0 else 0  # Proportion of positive outcomes in facet d
+    qa = na1 / na if na > 0 else 0
+    qd = nd1 / nd if nd > 0 else 0
 
-    # Calculate the Difference in Proportions of Labels (DPL)
     dpl = qa - qd
     return dpl
 
 
 def kullback_leibler_divergence(Pa, Pd):
-    """
-    Calculate the Kullback-Leibler divergence between two distributions.
-
-    Parameters:
-    - Pa (list or numpy array): Probability distribution of facet a.
-    - Pd (list or numpy array): Probability distribution of facet d.
-
-    Returns:
-    - float: The Kullback-Leibler divergence (KL) in nats.
-
-    Description:
-    - KL(Pa || Pd) is the expectation of the logarithmic difference between the probabilities
-      Pa(y) and Pd(y), weighted by the probabilities Pa(y).
-    - KL is zero when Pa and Pd are the same.
-    - Positive KL values indicate divergence, with larger values showing greater divergence.
-    """
-    # Convert lists to numpy arrays if they are not already
     Pa = np.array(Pa)
     Pd = np.array(Pd)
-
-    # Where Pd is zero, set it to a small number to avoid division by zero
     Pd = np.where(Pd == 0, 1e-10, Pd)
-    
-    # Where Pa is zero, the contribution to KL is zero, so we can ignore these terms
     nonzero_Pa = Pa > 0
-
-    # Calculate KL divergence only for nonzero Pa values
     kl_divergence = np.sum(Pa[nonzero_Pa] * np.log(Pa[nonzero_Pa] / Pd[nonzero_Pa]))
     
     return kl_divergence
 
 
 def generalized_demographic_disparity(df, facet_column, outcome_column, reference_group=None):
-    """
-    Calculate demographic disparity for each group within a facet compared to a reference group.
-    
-    Parameters:
-    - df (DataFrame): DataFrame containing the data.
-    - facet_column (str): Column in df that distinguishes between demographic groups.
-    - outcome_column (str): Column containing the outcomes.
-    - reference_group (str): The group to use as a reference for comparison. If None, use the overall proportions.
-    
-    Returns:
-    - DataFrame: Disparity measures for each group compared to the reference group.
-    """
-    # Calculate the proportion of each outcome within each facet group
     group_proportions = df.groupby(facet_column)[outcome_column].value_counts(normalize=True).unstack(fill_value=0)
     
-    # Determine the reference proportions
     if reference_group:
         reference_proportions = group_proportions.loc[reference_group]
     else:
         reference_proportions = df[outcome_column].value_counts(normalize=True)
     
-    # Calculate disparity as the difference or ratio (customizable based on requirements)
-    disparity = group_proportions - reference_proportions  # Difference in proportions
-    # disparity = group_proportions / reference_proportions  # Ratio of proportions could also be used
+    disparity = group_proportions - reference_proportions
 
     return disparity
 
 
 def generalized_conditional_demographic_disparity(df, facet_column, outcome_column, subgroup_column):
-    # Compute proportions of each outcome within each facet group for each subgroup
     subgroup_proportions = df.groupby([subgroup_column, facet_column])[outcome_column].value_counts(normalize=True).unstack(fill_value=0)
-
-    # Compute overall proportions in the entire dataset for comparison
     overall_proportions = df[outcome_column].value_counts(normalize=True).reindex(subgroup_proportions.columns, fill_value=0)
-
-    # Initialize a DataFrame to store aggregated results with the same columns and index as subgroup_proportions
     aggregated_disparity = pd.DataFrame(0, index=subgroup_proportions.index, columns=subgroup_proportions.columns)
 
-    # Iterate over each subgroup and calculate disparities
     for subgroup, group_data in subgroup_proportions.groupby(level=0):
-        # Calculate disparity
         subgroup_disparity = group_data - overall_proportions
-        # Weight of subgroup in dataset
         subgroup_weight = len(df[df[subgroup_column] == subgroup]) / len(df)
-        # Add weighted disparity to the aggregated disparity
         aggregated_disparity += subgroup_disparity * subgroup_weight
 
     return aggregated_disparity
 
 
 def compute_probability_distributions(df, facet_column, label_column):
-    """
-    Compute probability distributions for each facet based on the label column and return as numpy arrays.
-
-    Parameters:
-    - df (DataFrame): The DataFrame containing the data.
-    - facet_column (str): The column in df that distinguishes between facets.
-    - label_column (str): The column containing the labels to analyze.
-
-    Returns:
-    - dict: Dictionary of numpy arrays containing the probability distributions for each facet.
-    """
     facet_label_counts = df.groupby(facet_column)[label_column].value_counts().unstack(fill_value=0)
     probability_distributions = facet_label_counts.div(facet_label_counts.sum(axis=1), axis=0)
-    
-    # Convert DataFrame rows to numpy arrays and store in a dictionary
     distributions_dict = {facet: probabilities.values for facet, probabilities in probability_distributions.iterrows()}
     return distributions_dict
 
 
 def jensen_shannon_divergence(Pa, Pd):
-    """
-    Calculate the Jensen-Shannon divergence between two distributions.
-    Both Pa and Pd are numpy arrays of probabilities and must be of the same length.
-    """
-    # Calculate M as the average of Pa and Pd
     M = 0.5 * (Pa + Pd)
-    
-    # Calculate the KL divergences from Pa to M and Pd to M
     kl_pm = kullback_leibler_divergence(Pa, M)
     kl_qm = kullback_leibler_divergence(Pd, M)
-    
-    # Calculate the JS divergence
     js_divergence = 0.5 * (kl_pm + kl_qm)
     return js_divergence
 
 
 def lp_norm(Pa, Pd, p=2):
-    """
-    Calculate the Lp-norm between two distributions.
-
-    Parameters:
-    - Pa (numpy array): Distribution of outcomes for facet a.
-    - Pd (numpy array): Distribution of outcomes for facet d.
-    - p (int): The order of the norm (2 for Euclidean).
-
-    Returns:
-    - float: The Lp-norm between the two distributions.
-    """
-    
     return np.linalg.norm(Pa - Pd, ord=p)
 
 
-def compute_outcome_distributions(df, facet_column, label_column):
-    """
-    Compute outcome distributions for each facet based on the label column.
-
-    Parameters:
-    - df (DataFrame): The DataFrame containing the data.
-    - facet_column (str): The column in df that distinguishes between facets.
-    - label_column (str): The column containing the labels to analyze.
-
-    Returns:
-    - np.array: Distribution of outcomes for facet a.
-    - np.array: Distribution of outcomes for facet d.
-    """
-    # Count outcomes for each label within each facet
-    outcome_counts = df.groupby(facet_column)[label_column].value_counts().unstack(fill_value=0)
-    # Normalize these counts if needed or leave as counts for Lp-norm calculation
-    Pa = outcome_counts.loc[1].values #ATTENTION
-    Pd = outcome_counts.loc[0].values #ATTENTION
-
-    return Pa, Pd
-
-
 def generalized_total_variation_distance(df, facet_column, outcome_column):
-    """
-    Calculate the Generalized Total Variation Distance (TVD) based on the L1-norm of the differences 
-    in outcome counts for multiple groups.
-
-    Parameters:
-    - df (DataFrame): The DataFrame containing the data.
-    - facet_column (str): The column in df that distinguishes between facets or groups.
-    - outcome_column (str): The column containing the outcomes to analyze.
-
-    Returns:
-    - float: The average Total Variation Distance (TVD) across all pairs of groups.
-    """
-    # Count the outcomes for each facet and outcome category
     outcome_counts = df.groupby([facet_column, outcome_column]).size().unstack(fill_value=0)
-
-    # Get all unique facets
     facets = outcome_counts.index.unique()
     n = len(facets)
     
     if n < 2:
         raise ValueError("Not enough groups for comparison (at least two required).")
     
-    # Calculate pairwise TVD
     total_tvd = 0
     count = 0
     for i in range(n):
@@ -256,43 +105,28 @@ def generalized_total_variation_distance(df, facet_column, outcome_column):
             total_tvd += tvd
             count += 1
 
-    # Calculate the average TVD across all pairs
     average_tvd = total_tvd / count if count > 0 else 0
     return average_tvd
 
 
 def kolmogorov_smirnov_metric(Pa, Pd):
-    """
-    Calculate the Kolmogorov-Smirnov metric as the maximum divergence between two distributions.
-
-    Parameters:
-    - Pa (numpy array): Probability distribution for facet 'a'.
-    - Pd (numpy array): Probability distribution for facet 'd'.
-
-    Returns:
-    - float: The KS metric.
-    """
-    # Validate inputs
+    
     if Pa.size == 0 or Pd.size == 0:
         raise ValueError("One or both probability distributions are empty.")
+        
     if Pa.size != Pd.size:
         raise ValueError("Distributions must be of the same length.")
 
-    # Calculate the maximum divergence
     ks_metric = max(abs(Pa - Pd))
     return ks_metric
 
 
 def get_user_input():
-    # File input
     file_path = input("Enter the path to your dataset (Excel file): ")
-    
-    # Column names
     facet_column = input("Enter the column name for the facet (e.g., Gender): ")
     outcome_column = input("Enter the column name for the outcome (e.g., Lymphoma): ")
     subgroup_column = input("Enter the column name for subgroup categorization (optional, press Enter to skip): ")
     
-    # Label values or thresholds
     try:
         label_value = int(input("Enter the label value or threshold for positive outcomes (e.g., 1): "))
     except ValueError:
@@ -393,8 +227,6 @@ def main():
     probability_distributions = compute_probability_distributions(D, 
                                                                   facet_name, 
                                                                   outcome_name)
-    
-    #Extract Pa and Pd assuming keys are known (e.g., '1' for Pa and '0' for Pd)
     Pa = probability_distributions.get(1, np.array([]))
     Pd = probability_distributions.get(0, np.array([]))
     
