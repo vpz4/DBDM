@@ -220,35 +220,45 @@ def compute_outcome_distributions(df, facet_column, label_column):
     return Pa, Pd
 
 
-def total_variation_distance(df, facet_column, outcome_column):
+def generalized_total_variation_distance(df, facet_column, outcome_column):
     """
-    Calculate the Total Variation Distance (TVD) based on the L1-norm of the differences in outcome counts.
+    Calculate the Generalized Total Variation Distance (TVD) based on the L1-norm of the differences 
+    in outcome counts for multiple groups.
 
     Parameters:
     - df (DataFrame): The DataFrame containing the data.
-    - facet_column (str): The column in df that distinguishes between facets.
+    - facet_column (str): The column in df that distinguishes between facets or groups.
     - outcome_column (str): The column containing the outcomes to analyze.
 
     Returns:
-    - float: The Total Variation Distance (TVD).
+    - float: The average Total Variation Distance (TVD) across all pairs of groups.
     """
     # Count the outcomes for each facet and outcome category
     outcome_counts = df.groupby([facet_column, outcome_column]).size().unstack(fill_value=0)
 
-    # Ensure both facets are present in the outcomes
-    if 0 not in outcome_counts.index or 1 not in outcome_counts.index:
-        raise ValueError("Both facets 'a' and 'd' must be present in the data")
+    # Get all unique facets
+    facets = outcome_counts.index.unique()
+    n = len(facets)
+    
+    if n < 2:
+        raise ValueError("Not enough groups for comparison (at least two required).")
+    
+    # Calculate pairwise TVD
+    total_tvd = 0
+    count = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            # Calculate the L1-norm between each pair of groups
+            na = outcome_counts.loc[facets[i]]
+            nb = outcome_counts.loc[facets[j]]
+            l1_norm = sum(abs(na[k] - nb[k]) for k in na.index)
+            tvd = 0.5 * l1_norm
+            total_tvd += tvd
+            count += 1
 
-    # Get the counts for each facet
-    na = outcome_counts.loc[0]
-    nd = outcome_counts.loc[1]
-
-    # Calculate the L1-norm
-    l1_norm = sum(abs(na[i] - nd[i]) for i in na.index)
-
-    # Calculate TVD as half the L1-norm
-    tvd = 0.5 * l1_norm
-    return tvd
+    # Calculate the average TVD across all pairs
+    average_tvd = total_tvd / count if count > 0 else 0
+    return average_tvd
 
 
 def kolmogorov_smirnov_metric(Pa, Pd):
@@ -279,7 +289,7 @@ def get_user_input():
     
     # Column names
     facet_column = input("Enter the column name for the facet (e.g., Gender): ")
-    outcome_column = input("Enter the column name for the predicted outcomes (e.g., Lymphoma): ")
+    outcome_column = input("Enter the column name for the outcome (e.g., Lymphoma): ")
     subgroup_column = input("Enter the column name for subgroup categorization (optional, press Enter to skip): ")
     
     # Label values or thresholds
@@ -305,47 +315,84 @@ def main():
     if user_input is None:
         return  # Exit if the user input was invalid
     
-    file_path, facet_name, predicted_column, subgroup_column, label_values_or_threshold = user_input
+    file_path, facet_name, outcome_name, subgroup_column, label_values_or_threshold = user_input
     D = load_data(file_path)
     if D is None:
         return  # Exit if data loading failed
     
+    print("")
+    print("Calculating pre-training data bias metrics...")
+    
     #CLASS IMBALANCE (CI)
     ci = calculate_generalized_imbalance(D, facet_name)
-    print("CI for", facet_name, "is", str(ci))
+    print("- CI for", facet_name, "is", str(ci))
+    
+    #CI values near either of the extremes values of -1 or 1 are very imbalanced and are at a substantial risk of making biased predictions.
+    if ((np.around(ci,2) >= 0.9)|(np.around(ci,2) <= -0.9)):
+        print(">> Warning: Significant bias detected based on CI metric!")
     
     #DIFFERENCE IN PROPORTION LABELS (DPL)
     num_facet = D[facet_name].value_counts()
     num_facet_adv = num_facet[1] #favored facet values
     num_facet_disadv = num_facet[0] #disfavored facet values
-    num_facet_and_pos_label = D[facet_name].where(D[predicted_column] == label_values_or_threshold).value_counts()
+    num_facet_and_pos_label = D[facet_name].where(D[outcome_name] == label_values_or_threshold).value_counts()
     num_facet_and_pos_label_adv = num_facet_and_pos_label[1]
     num_facet_and_pos_label_disadv = num_facet_and_pos_label[0]
     dpl = calculate_difference_in_proportions(num_facet_and_pos_label_adv,
                                               num_facet_adv,
                                               num_facet_and_pos_label_disadv,
                                               num_facet_disadv)
-    print("DPL for", facet_name, "given", predicted_column, "=", 
-          str(label_values_or_threshold), "is", str(dpl))
+    print("- DPL for", 
+          facet_name, 
+          "given the outcome", 
+          outcome_name, 
+          "=", 
+          str(label_values_or_threshold), 
+          "is", 
+          str(dpl))
+    
+    if abs(dpl) > 0.1:
+        print(">> Warning: Significant bias detected based on DPL metric!")
     
     #DEMOGRAPHIC DISPARITY (DD)
     dd = generalized_demographic_disparity(D, 
                                            facet_name, 
-                                           predicted_column, 
+                                           outcome_name, 
                                            reference_group=None)
-    print(f"Demographic Disparity for facet {facet_name} is: {dd}")
+    print("- Average DD for", 
+          facet_name,
+          "given the outcome",
+          outcome_name,
+          "is:", 
+          str(dd.mean().mean()))
+    
+    if abs(dd.mean().mean()) > 0.1:
+        print(">> Warning: Significant bias detected based on DD metric!")
     
     #CONDITIONAL DEMOGRAPHIC DISPARITY (CDD)
-    cdd = generalized_conditional_demographic_disparity(D, 
-                                                        facet_name, 
-                                                        predicted_column, 
-                                                        subgroup_column)
-    print(f"Conditional Demographic Disparity (CDD): {cdd}")
+    if subgroup_column.strip():  # Check if subgroup_column is provided and not just an empty string
+        cdd = generalized_conditional_demographic_disparity(D, 
+                                                            facet_name, 
+                                                            outcome_name, 
+                                                            subgroup_column)
+        print("- Average CDD for", 
+              facet_name,
+              "given the outcome",
+              outcome_name,
+              "conditioned by",
+              subgroup_column,
+              "is:", 
+              str(cdd.mean().mean()))
+        
+        if (cdd.mean().mean()) > 0.1:
+            print(">> Warning: Significant bias detected based on CDD metric!")
+    else:
+        print("- Average CDD: Subgroup was not provided.")   
     
     #Compute the probability distributions for the facets
     probability_distributions = compute_probability_distributions(D, 
                                                                   facet_name, 
-                                                                  predicted_column)
+                                                                  outcome_name)
     
     #Extract Pa and Pd assuming keys are known (e.g., '1' for Pa and '0' for Pd)
     Pa = probability_distributions.get(1, np.array([]))
@@ -354,24 +401,56 @@ def main():
     if Pa.size > 0 and Pd.size > 0 and Pa.size == Pd.size:
         #JENSEN-SHANNON DIVERGENCE
         js_divergence = jensen_shannon_divergence(Pa, Pd)
-        print(f"Jensen-Shannon Divergence for {facet_name}: {js_divergence}")
+        print("- Jensen-Shannon Divergence between", 
+              facet_name,
+              "and",
+              outcome_name,
+              "is", 
+              str(js_divergence))
+        
+        if js_divergence > 0.1:
+            print(">> Warning: Significant bias detected based on JS metric!")
         
         #L2 NORM
         l2_norm_value = lp_norm(Pa, Pd, p=2)
-        print(f"L2 Norm between facet distributions: {l2_norm_value}")
+        print("- L2 norm between", 
+              facet_name,
+              "and",
+              outcome_name,
+              "is", 
+              str(l2_norm_value))
         
+        if l2_norm_value > 0.1:
+            print(">> Warning: Significant bias detected based on L2 norm metric!")
+            
         #TOTAL VARIATION DISTANCE (TVD)
         try:
-            tvd = total_variation_distance(D, facet_name, predicted_column)
-            print(f"Total Variation Distance (TVD): {tvd}")
+            tvd = generalized_total_variation_distance(D, facet_name, outcome_name)
+            print("- TVD for", 
+                  facet_name,
+                  "given",
+                  outcome_name,
+                  "is", 
+                  str(tvd))
+            
+            if tvd > 0.1:
+                print(">> Warning: Significant bias detected based on TVD metric!")
+             
         except ValueError as e:
             print(e)
             
         #KS METRIC
         ks_value = kolmogorov_smirnov_metric(Pa, Pd)
-        print(f"Kolmogorov-Smirnov metric: {ks_value}")
+        print("- KS metric between", 
+              facet_name,
+              "and",
+              outcome_name,
+              "is", 
+              str(ks_value))
+        if abs(ks_value) > 0.1:
+            print(">> Warning: Significant bias detected based on KS metric!")
     else:
-        print("Cannot compute Kolmogorov-Smirnov metric due to data issues.")
+        print("Cannot compute Jensen-Shannon Divergence, L2 norm, TVD, KS due to data issues.")
 
 
 if __name__ == "__main__":
