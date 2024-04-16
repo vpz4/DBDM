@@ -8,12 +8,12 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Python version:** Python 3.9.
 - **Libraries:** `pandas`, `numpy`
 - **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or Excel.
-- **Facet name:** A variable name indicating the facet (e.g., Gender, Age).
-- **Outcome name:** A variable name with binary outcomes (e.g, 1: presence, 0: absence).
-- **Subgroup column:** An optional varialbe name which is necessary for subgroup analysis (to estimate the conditional demographic disparity).
+- **Facet:** A binary or continuous variable indicating the facet (e.g., Gender, Age).
+- **Outcome:** A binary variable indicating the outcome (e.g, 1: presence, 0: absence).
+- **Subgroup:** An optional binary or categorical variable name for subgroup categorization (to estimate the conditional demographic disparity).
 
 ## Features
-- **Class Imbalance (CI):** Evaluates the imbalance between two groups.
+- **Class Imbalance (CI):** Evaluates the imbalance between the facet and the outcome.
 - **Difference in Proportions of Labels (DPL):** Measures disparity in positive outcomes between groups.
 - **Demographic Disparity (DD):** Computes outcome disparity for a specific group.
 - **Conditional Demographic Disparity (CDD):** Examines demographic disparities within subgroups.
