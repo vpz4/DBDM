@@ -7,7 +7,7 @@ This repository hosts a Python-based toolkit which has been designed for the det
 ## Requirements
 - **Python version:** Python 3.9.
 - **Libraries:** `pandas`, `numpy`
-- **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or Excel.
+- **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or JSON.
 - **Facet:** A binary or continuous variable indicating the facet (e.g., Gender).
 - **Outcome:** A binary variable indicating the outcome (e.g., Lymphoma).
 - **Subgroup:** An optional binary or categorical variable for subgroup categorization (this is used only for the estimation of the CDD metric).
