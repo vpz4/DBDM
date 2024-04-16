@@ -5,11 +5,11 @@ Description
 
 This repository contains a Python script designed for the detection and mitigation of data bias in datasets. It is particularly useful in analyzing datasets with binary facets (such as Gender or any dichotomous variable) and binary or continuous outcomes (like disease status or test scores). The script provides several key metrics to evaluate bias, including Class Imbalance (CI), Difference in Proportions of Labels (DPL), Demographic Disparity (DD), Conditional Demographic Disparity (CDD), as well as statistical divergences like Kullback-Leibler, Jensen-Shannon, and Kolmogorov-Smirnov.
 
-1. Features
+1. Features<br />
 
-Class Imbalance (CI): Measures the imbalance between two facets.
-Difference in Proportions of Labels (DPL): Quantifies the disparity in positive outcomes between two facets.
-Demographic Disparity (DD): Calculates the disparity in outcomes for a specific facet.
+Class Imbalance (CI): Measures the imbalance between two facets.<br />
+Difference in Proportions of Labels (DPL): Quantifies the disparity in positive outcomes between two facets.<br />
+Demographic Disparity (DD): Calculates the disparity in outcomes for a specific facet.<br />
 Conditional Demographic Disparity (CDD): Assesses demographic disparity across various subgroups.
 Statistical Divergences: Includes calculations for Kullback-Leibler divergence and Jensen-Shannon divergence to measure the difference between probability distributions.
 Total Variation Distance (TVD) and Kolmogorov-Smirnov Metric: These metrics measure the statistical distance between distributions of outcomes for each facet.
