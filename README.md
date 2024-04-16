@@ -2,7 +2,7 @@
 **An open-source toolkit for data bias detection and mitigation**
 
 ## Description
-This repository hosts a Python-based toolkit designed for the detection and mitigation of data bias in various tabular datasets. It is especially useful for analyzing binary facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit provides crucial metrics to assess bias, including Class Imbalance, Difference in Proportions of Labels, Demographic Disparity, Conditional Demographic Disparity, and various statistical divergences, such as, Kullback-Leibler, Jensen-Shannon, and Kolmogorov-Smirnov.
+This repository hosts a Python-based toolkit designed for the detection and mitigation of data bias in various tabular datasets. It is especially useful for analyzing binary facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit provides state of the art metrics to assess bias, including Class Imbalance, Difference in Proportions of Labels, Demographic Disparity, Conditional Demographic Disparity, and various statistical divergences, such as, Kullback-Leibler, Jensen-Shannon, and Kolmogorov-Smirnov.
 
 ## Requirements
 - **Python Version:** Ensure Python 3.9 is installed.
