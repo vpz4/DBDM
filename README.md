@@ -2,7 +2,15 @@
 **Data Bias Detection and Mitigation Toolkit**
 
 ## Description
-This repository hosts a Python-based toolkit designed for the detection and mitigation of data bias in various datasets. It is especially useful for analyzing binary facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit provides crucial metrics to assess bias, including Class Imbalance, Difference in Proportions of Labels, Demographic Disparity, Conditional Demographic Disparity, and various statistical divergences such as Kullback-Leibler, Jensen-Shannon, and Kolmogorov-Smirnov.
+This repository hosts a Python-based toolkit designed for the detection and mitigation of data bias in various tabular datasets. It is especially useful for analyzing binary facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit provides crucial metrics to assess bias, including Class Imbalance, Difference in Proportions of Labels, Demographic Disparity, Conditional Demographic Disparity, and various statistical divergences, such as, Kullback-Leibler, Jensen-Shannon, and Kolmogorov-Smirnov.
+
+## Requirements
+- **Python Version:** Ensure Python 3.x is installed.
+- **Libraries Required:** `pandas`, `numpy`
+- **Data Format:** The dataset should be in a format readable by `pandas`, typically CSV or Excel.
+- **Facet Column:** A column indicating binary facets (e.g., Gender with values 0 and 1).
+- **Outcome Column:** A column with binary or continuous outcomes.
+- **Subgroup Column:** An optional column for subgroup analysis.
 
 ## Features
 - **Class Imbalance (CI):** Evaluates the imbalance between two groups.
@@ -14,8 +22,7 @@ This repository hosts a Python-based toolkit designed for the detection and miti
 - **Interactive User Input:** Enables specification of dataset paths, column names, and values via console input, enhancing flexibility for various datasets.
 
 ## Usage
-- **Setup:** Ensure Python 3.9 and necessary libraries (Pandas, NumPy) are installed.
-- **Running the Script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and column names.
+- **Running the script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and column names.
 - **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports.
 
 ## Installation
