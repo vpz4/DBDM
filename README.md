@@ -34,6 +34,7 @@ git clone https://github.com/vpz4/DBDM.git
 cd DBDM
 pip install pandas numpy
 ```
+
 ## Example of console output
 runfile('C:/DBDM/DBDM_prompt_general_facets_v01.py', wdir='C:/DBDM')
 Enter the path to your dataset (Excel file): test.xlsx
