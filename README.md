@@ -21,10 +21,11 @@ This repository hosts a Python-based toolkit designed for the detection and miti
 ## Installation
 To install the toolkit, clone the repository and set up the required environment:
 
-``bash
+```bash
 git clone https://github.com/vpz4/DBDM.git
 cd data-bias-detection
 pip install pandas numpy
+```
 
 ## Contribution
 Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
