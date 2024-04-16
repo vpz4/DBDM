@@ -36,24 +36,8 @@ pip install pandas numpy
 ```
 
 ## Example of console output
-runfile('C:/DBDM/DBDM_prompt_general_facets_v01.py', wdir='C:/DBDM')
-Enter the path to your dataset (Excel file): test.xlsx
-Enter the column name for the facet (e.g., Gender): Gender
-Enter the column name for the outcome (e.g., Lymphoma): Lymphoma
-Enter the column name for subgroup categorization (optional, press Enter to skip): 
-Enter the label value or threshold for positive outcomes (e.g., 1): 1
 
-Calculating pre-training data bias metrics...
-CI for Gender is 0.897872340425532
-> Warning: Significant bias detected based on CI metric!
-DPL for Gender given the outcome Lymphoma = 1 is 0.005455904334828107
-Average DD for Gender given the outcome Lymphoma is: -1.0408340855860843e-17
-Average CDD: Subgroup was not provided.
-Jensen-Shannon Divergence between Gender and Lymphoma is 4.7313507784679104e-05
-L2 norm between Gender and Lymphoma is 0.007715813905324001
-TVD for Gender given Lymphoma is 527.5
-> Warning: Significant bias detected based on TVD metric!
-KS metric between Gender and Lymphoma is 0.005455904334828107
+![Capture](https://github.com/vpz4/DBDM/assets/15791743/a00f4132-961b-413b-8cc7-f7daa96e0833)
 
 ## Contribution
 Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
