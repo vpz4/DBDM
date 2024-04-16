@@ -20,6 +20,7 @@ Output: The script outputs bias metrics to the console, which can be used for fu
 
 Installation<br />
 Clone the repository and install required dependencies:<br />
+Markup :  `code()`
 git clone https://github.com/yourusername/data-bias-detection.git<br />
 cd data-bias-detection<br />
 pip install pandas numpy<br />
