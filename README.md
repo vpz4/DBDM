@@ -42,4 +42,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Additional notes
 The script is designed to be modular and easy to extend for additional types of analyses.<br />
-Future enhancements could include visualizations of the distributions and biases or integration with machine learning models to predict and mitigate biases directly.<br />
+Future enhancements could include visualizations of the distributions and biases.<br />
