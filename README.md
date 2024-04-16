@@ -8,17 +8,17 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Python version:** Python 3.9.
 - **Libraries:** `pandas`, `numpy`
 - **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or Excel.
-- **Facet:** A binary or continuous variable indicating the facet (e.g., Gender, Age).
+- **Facet:** A binary or continuous variable indicating the facet (e.g., Gender).
 - **Outcome:** A binary variable indicating the outcome (e.g, 1: presence, 0: absence).
 - **Subgroup:** An optional binary or categorical variable name for subgroup categorization (to estimate the conditional demographic disparity).
 
 ## Features
-- **Class Imbalance (CI):** Evaluates the imbalance between the facet and the outcome.
-- **Difference in Proportions of Labels (DPL):** Measures disparity in positive outcomes between groups.
-- **Demographic Disparity (DD):** Computes outcome disparity for a specific group.
+- **Class Imbalance (CI):** Evaluates the imbalance between the groups in the facet.
+- **Difference in Proportions of Labels (DPL):** Measures the disparity in the positive outcomes between the groups in the facet.
+- **Demographic Disparity (DD):** Computes the disparity for a specific group.
 - **Conditional Demographic Disparity (CDD):** Examines demographic disparities within subgroups.
-- **Statistical Divergences:** Includes Kullback-Leibler and Jensen-Shannon divergences to quantify differences between probability distributions.
-- **Total Variation Distance (TVD) and Kolmogorov-Smirnov Metric:** Assess the statistical distance between outcome distributions.
+- **Statistical Divergences:** Estimates the Kullback-Leibler and the Jensen-Shannon divergences to quantify differences between probability distributions.
+- **Total Variation Distance (TVD) and Kolmogorov-Smirnov Metric:** Assesses the statistical distance between the outcome distributions.
 - **Interactive User Input:** Enables specification of dataset paths, column names, and values via console input, enhancing flexibility for various datasets.
 
 ## Usage
