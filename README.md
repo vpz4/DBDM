@@ -5,12 +5,12 @@
 This repository hosts a Python-based toolkit which has been designed for the detection and mitigation of (pre-training) data bias in various tabular datasets. It is useful for analyzing facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit utilizes state of the art metrics to provide a holistic view on the detection of pre-training data bias, including the Class Imbalance, the Difference in Proportions of Labels, the Demographic Disparity, the Conditional Demographic Disparity, and various statistical metrics for estimating divergence between facets and outcomes, such as, the Kullback-Leibler (KL) divergence, the Jensen-Shannon (JS) divergence, and the Kolmogorov-Smirnov (KS) metric.
 
 ## Requirements
-- **Python Version:** Ensure Python 3.9 is installed.
-- **Libraries required:** `pandas`, `numpy`
-- **Data format:** The dataset should be in a format readable by `pandas`, typically CSV or Excel.
-- **Facet column:** A column indicating binary facets (e.g., Gender with values 0: male and 1: female).
-- **Outcome column:** A column with binary or continuous outcomes.
-- **Subgroup column:** An optional column for subgroup analysis.
+- **Python version:** Python 3.9.
+- **Libraries:** `pandas`, `numpy`
+- **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or Excel.
+- **Facet name:** A variable name indicating the facet (e.g., Gender, Age).
+- **Outcome name:** A variable name with binary outcomes (e.g, 1: presence, 0: absence).
+- **Subgroup column:** An optional varialbe name which is necessary for subgroup analysis (to estimate the conditional demographic disparity).
 
 ## Features
 - **Class Imbalance (CI):** Evaluates the imbalance between two groups.
