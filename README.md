@@ -9,8 +9,9 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Libraries:** `pandas`, `numpy`
 - **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or Excel.
 - **Facet:** A binary or continuous variable indicating the facet (e.g., Gender).
-- **Outcome:** A binary variable indicating the outcome (e.g, 1: presence, 0: absence).
-- **Subgroup:** An optional binary or categorical variable name for subgroup categorization (to estimate the conditional demographic disparity).
+- **Outcome:** A binary variable indicating the outcome (e.g., Lymphoma).
+- **Subgroup:** An optional binary or categorical variable for subgroup categorization (this is used only for the estimation of the CDD metric).
+- **Label value or threshold:** A label value or threshold for positive outcomes (e.g. 1).
 
 ## Features
 - **Class Imbalance (CI):** Evaluates the imbalance between the groups in the facet.
@@ -22,7 +23,7 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Interactive User Input:** Enables specification of dataset paths, column names, and values via console input, enhancing flexibility for various datasets.
 
 ## Usage
-- **Running the script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and column names.
+- **Running the script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and facet, outcome, subgroup names as described in the Requirements section.
 - **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports.
 
 ## Installation
