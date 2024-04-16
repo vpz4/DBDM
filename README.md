@@ -35,6 +35,8 @@ cd DBDM
 pip install pandas numpy
 ```
 
+![image](https://github.com/vpz4/DBDM/assets/15791743/6eeab441-e04f-4e91-b003-173b571952ef)
+
 ## Contribution
 Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
 
