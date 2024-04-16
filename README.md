@@ -17,8 +17,8 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Difference in Proportions of Labels (DPL):** Measures the disparity in the positive outcomes between the groups in the facet.
 - **Demographic Disparity (DD):** Computes the disparity for a specific group.
 - **Conditional Demographic Disparity (CDD):** Examines demographic disparities within subgroups.
-- **Statistical Divergences:** Estimates the Kullback-Leibler and the Jensen-Shannon divergences to quantify differences between probability distributions.
-- **Total Variation Distance (TVD) and Kolmogorov-Smirnov Metric:** Assesses the statistical distance between the outcome distributions.
+- **Statistical Divergences:** Estimates the Kullback-Leibler (KL) and the Jensen-Shannon (JS) divergences to quantify differences between probability distributions.
+- **Total Variation Distance (TVD) and Kolmogorov-Smirnov (KS) Metric:** Assesses the statistical distance between the outcome distributions.
 - **Interactive User Input:** Enables specification of dataset paths, column names, and values via console input, enhancing flexibility for various datasets.
 
 ## Usage
