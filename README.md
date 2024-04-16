@@ -14,7 +14,7 @@ This repository hosts a Python-based toolkit designed for the detection and miti
 - **Interactive User Input:** Enables specification of dataset paths, column names, and values via console input, enhancing flexibility for various datasets.
 
 ## Usage
-- **Setup:** Ensure Python 3.x and necessary libraries (Pandas, NumPy) are installed.
+- **Setup:** Ensure Python 3.9 and necessary libraries (Pandas, NumPy) are installed.
 - **Running the Script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and column names.
 - **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports.
 
