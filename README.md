@@ -24,7 +24,7 @@ This repository hosts a Python-based toolkit which has been designed for the det
 
 ## Usage
 - **Running the script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and facet, outcome, subgroup names as described in the Requirements section.
-- **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports.
+- **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports. Warningns are also provided in the case of threshold violations in any of the above metrics.
 
 ## Installation
 To install the toolkit, clone the repository and set up the required environment:
