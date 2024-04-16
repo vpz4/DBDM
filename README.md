@@ -1,7 +1,7 @@
 # DBDM
 A toolkit for data bias detection and mitigation (DBDM)
 
-Description<br />
+**Description**<br />
 This repository contains a Python script designed for the detection and mitigation of data bias in datasets. It is particularly useful in analyzing datasets with binary facets (such as Gender or any dichotomous variable) and binary or continuous outcomes (like disease status or test scores). The script provides several key metrics to evaluate bias, including Class Imbalance (CI), Difference in Proportions of Labels (DPL), Demographic Disparity (DD), Conditional Demographic Disparity (CDD), as well as statistical divergences like Kullback-Leibler, Jensen-Shannon, and Kolmogorov-Smirnov.
 
 Features<br />
@@ -20,9 +20,9 @@ Output: The script outputs bias metrics to the console, which can be used for fu
 
 Installation<br />
 Clone the repository and install required dependencies:<br />
-Markup :  `git clone https://github.com/yourusername/data-bias-detection.git<br />
+git clone https://github.com/yourusername/data-bias-detection.git<br />
 cd data-bias-detection<br />
-pip install pandas numpy<br />`
+pip install pandas numpy<br />
 
 
 Contribution<br />
