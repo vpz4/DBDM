@@ -85,9 +85,12 @@ def lp_norm(Pa, Pd, p=2):
     return np.linalg.norm(Pa - Pd, ord=p)
 
 
+
 def generalized_total_variation_distance(df, facet_name, outcome_name):
     outcome_counts = df.groupby([facet_name, outcome_name]).size().unstack(fill_value=0)
-    facets = outcome_counts.index.unique()
+    outcome_probabilities = outcome_counts.div(outcome_counts.sum(axis=1), axis=0)  # Normalize to probabilities
+
+    facets = outcome_probabilities.index.unique()
     n = len(facets)
     
     if n < 2:
@@ -97,9 +100,9 @@ def generalized_total_variation_distance(df, facet_name, outcome_name):
     count = 0
     for i in range(n):
         for j in range(i + 1, n):
-            # Calculate the L1-norm between each pair of groups
-            na = outcome_counts.loc[facets[i]]
-            nb = outcome_counts.loc[facets[j]]
+            # Calculate the L1-norm between each pair of groups using probabilities
+            na = outcome_probabilities.loc[facets[i]]
+            nb = outcome_probabilities.loc[facets[j]]
             l1_norm = sum(abs(na[k] - nb[k]) for k in na.index)
             tvd = 0.5 * l1_norm
             total_tvd += tvd
@@ -107,6 +110,7 @@ def generalized_total_variation_distance(df, facet_name, outcome_name):
 
     average_tvd = total_tvd / count if count > 0 else 0
     return average_tvd
+
 
 
 def kolmogorov_smirnov_metric(Pa, Pd):
