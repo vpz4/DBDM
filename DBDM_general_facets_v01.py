@@ -11,8 +11,8 @@ import os
 
 os.chdir(os.getcwd())
 
-def calculate_generalized_imbalance(df, facet_column):
-    facet_counts = df[facet_column].value_counts()
+def calculate_generalized_imbalance(df, facet_name):
+    facet_counts = df[facet_name].value_counts()
     total = facet_counts.sum()
     proportions = facet_counts / total
     imbalance = proportions.max() - proportions.min()
@@ -40,22 +40,22 @@ def kullback_leibler_divergence(Pa, Pd):
     return kl_divergence
 
 
-def generalized_demographic_disparity(df, facet_column, outcome_column, reference_group=None):
-    group_proportions = df.groupby(facet_column)[outcome_column].value_counts(normalize=True).unstack(fill_value=0)
+def generalized_demographic_disparity(df, facet_name, outcome_name, reference_group=None):
+    group_proportions = df.groupby(facet_name)[outcome_name].value_counts(normalize=True).unstack(fill_value=0)
     
     if reference_group:
         reference_proportions = group_proportions.loc[reference_group]
     else:
-        reference_proportions = df[outcome_column].value_counts(normalize=True)
+        reference_proportions = df[outcome_name].value_counts(normalize=True)
     
     disparity = group_proportions - reference_proportions
 
     return disparity
 
 
-def generalized_conditional_demographic_disparity(df, facet_column, outcome_column, subgroup_column):
-    subgroup_proportions = df.groupby([subgroup_column, facet_column])[outcome_column].value_counts(normalize=True).unstack(fill_value=0)
-    overall_proportions = df[outcome_column].value_counts(normalize=True).reindex(subgroup_proportions.columns, fill_value=0)
+def generalized_conditional_demographic_disparity(df, facet_name, outcome_name, subgroup_column):
+    subgroup_proportions = df.groupby([subgroup_column, facet_name])[outcome_name].value_counts(normalize=True).unstack(fill_value=0)
+    overall_proportions = df[outcome_name].value_counts(normalize=True).reindex(subgroup_proportions.columns, fill_value=0)
     aggregated_disparity = pd.DataFrame(0, index=subgroup_proportions.index, columns=subgroup_proportions.columns)
 
     for subgroup, group_data in subgroup_proportions.groupby(level=0):
@@ -66,8 +66,8 @@ def generalized_conditional_demographic_disparity(df, facet_column, outcome_colu
     return aggregated_disparity
 
 
-def compute_probability_distributions(df, facet_column, label_column):
-    facet_label_counts = df.groupby(facet_column)[label_column].value_counts().unstack(fill_value=0)
+def compute_probability_distributions(df, facet_name, label_column):
+    facet_label_counts = df.groupby(facet_name)[label_column].value_counts().unstack(fill_value=0)
     probability_distributions = facet_label_counts.div(facet_label_counts.sum(axis=1), axis=0)
     distributions_dict = {facet: probabilities.values for facet, probabilities in probability_distributions.iterrows()}
     return distributions_dict
@@ -85,8 +85,8 @@ def lp_norm(Pa, Pd, p=2):
     return np.linalg.norm(Pa - Pd, ord=p)
 
 
-def generalized_total_variation_distance(df, facet_column, outcome_column):
-    outcome_counts = df.groupby([facet_column, outcome_column]).size().unstack(fill_value=0)
+def generalized_total_variation_distance(df, facet_name, outcome_name):
+    outcome_counts = df.groupby([facet_name, outcome_name]).size().unstack(fill_value=0)
     facets = outcome_counts.index.unique()
     n = len(facets)
     
@@ -128,8 +128,8 @@ def get_user_input():
         print("Unsupported file type. Please provide a CSV or JSON file.")
         return None
     
-    facet_column = input("Enter the column name for the facet (e.g., Gender): ")
-    outcome_column = input("Enter the column name for the outcome (e.g., Lymphoma): ")
+    facet_name = input("Enter the column name for the facet (e.g., Gender): ")
+    outcome_name = input("Enter the column name for the outcome (e.g., Lymphoma): ")
     subgroup_column = input("Enter the column name for subgroup categorization (optional, press Enter to skip): ")
     
     try:
@@ -138,7 +138,7 @@ def get_user_input():
         print("Invalid input! Please enter a valid integer for the label value.")
         return None
     
-    return file_path, facet_column, outcome_column, subgroup_column, label_value
+    return file_path, facet_name, outcome_name, subgroup_column, label_value
 
 def load_data(file_path):
     try:
