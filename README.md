@@ -18,9 +18,11 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Difference in Proportions of Labels (DPL):** Measures the disparity in the positive outcomes between the groups in the facet.
 - **Demographic Disparity (DD):** Computes the disparity for a specific group.
 - **Conditional Demographic Disparity (CDD):** Examines demographic disparities within subgroups.
-- **Statistical Divergences:** Estimates the Kullback-Leibler (KL) and the Jensen-Shannon (JS) divergences to quantify differences between probability distributions.
-- **Total Variation Distance (TVD) and Kolmogorov-Smirnov (KS) Metric:** Assesses the statistical distance between the outcome distributions.
--**Normalized Mutual Information (NMI):** Measures the information shared between two categorical variables, normalized to a range of [0, 1] where 1 indicates perfect correlation and 0 indicates no correlation.
+- **Kullback-Leibler divergences:** Estimates the Kullback-Leibler (KL) divergence between the probability distributions of the facet and the outcome.
+- **Jensen-Shannon (JS) divergence:** Estimates the Jensen-Shannon (JS) divergence between the facet and the outcome.
+- **Total Variation Distance (TVD):** Measures the distance between probability distributions. 
+- **Kolmogorov-Smirnov (KS) metric:** Assesses the statistical distance between the probability distributions of the facet and the outcome.
+- **Normalized Mutual Information (NMI):** Measures the information shared between two categorical variables, normalized to a range of [0, 1] where 1 indicates perfect correlation and 0 indicates no correlation.
 - **Normalized Conditional Mutual Information (NCMI):** Measures the mutual information between two categorical variables, conditioned on a third, normalized over the possible outcomes of the conditioning variable.
 - **Binary Ratio (BR):** Computes the ratio of positive outcomes between two binary groups.
 - **Binary Difference (BD):** Calculates the difference in proportions of positive outcomes between two binary groups to detect disparities.
