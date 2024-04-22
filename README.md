@@ -61,6 +61,7 @@ Enter the column name for subgroup categorization (optional, press Enter to skip
 Enter the label value or threshold for positive outcomes (e.g., 1):
 ```
 - **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports. Warningns are also provided in the case of threshold violations in any of the above metrics.
+
 ![Capture](https://github.com/vpz4/DBDM/assets/15791743/04135823-500a-43b9-b883-3658bc4488f4)
 
 
