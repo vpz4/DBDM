@@ -5,7 +5,7 @@
 This repository hosts a Python-based toolkit which has been designed for the detection and mitigation of data bias in various tabular datasets. It is useful for analyzing facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit utilizes state of the art metrics to provide a holistic view on the detection of pre-training data bias.
 
 ## Requirements
-- **Python version:** Python 3.9.
+- **Python version:** Python 3.9 or higher.
 - **Libraries:** `pandas`, `numpy`
 - **Data format:** The input dataset should be in a format readable by `pandas`, typically CSV or JSON.
 - **Facet:** A binary or continuous variable indicating the facet (e.g., Gender).
