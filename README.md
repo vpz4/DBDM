@@ -36,9 +36,7 @@ pip install pandas numpy
 ```
 
 ## Example of console output
-
-![Capture](https://github.com/vpz4/DBDM/assets/15791743/8bfb143d-c734-4998-9d1e-a2577a286f42)
-
+![Capture](https://github.com/vpz4/DBDM/assets/15791743/0f0e39b9-e60c-404a-b3f9-49af9406d5a3)
 
 ## Contribution
 Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
