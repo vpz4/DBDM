@@ -13,7 +13,7 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Subgroup:** An optional binary or categorical variable for subgroup categorization.
 - **Label value or threshold:** A label value or threshold for positive outcomes (e.g. 1).
 
-## Features
+## Metrics
 - **Class Imbalance (CI):** Evaluates the imbalance between the groups in the facet.
 - **Difference in Proportions of Labels (DPL):** Measures the disparity in the positive outcomes between the groups in the facet.
 - **Demographic Disparity (DD):** Computes the disparity for a specific group.
