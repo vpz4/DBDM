@@ -344,52 +344,52 @@ def main():
     else:
         print("Cannot compute Jensen-Shannon Divergence, L2 norm, TVD, KS due to data issues.")
 
-   # Normalized Mutual Information (NMI)
+   #NORMALIZED MUTUAL INFORMATION (NMI)
     nmi = normalized_mutual_information(D, facet_name, outcome_name)
     print("- NMI between", facet_name, "and", outcome_name, "is", str(nmi))
 
-    # Normalized Conditional Mutual Information (CondNMI)
+    #NORMALIZED CONDITIONAL MUTUAL INFORMATION (NCMI)
     if subgroup_column:
         cond_nmi = conditional_mutual_information(D, facet_name, outcome_name, subgroup_column)
-        print("- CondNMI for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_nmi))
+        print("- NCMI for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_nmi))
     else:
-        print("- CondNMI: Subgroup column not provided.")
+        print("- NCMI: Subgroup was not provided.")
 
-    # Binary Ratio (RATIO)
+    #BINARY RATIO (BR)
     if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:  # Check binary nature
         ratio = binary_ratio(D, facet_name, outcome_name)
-        print("- RATIO for", facet_name, "and", outcome_name, "is", str(ratio))
+        print("- BR for", facet_name, "and", outcome_name, "is", str(ratio))
     else:
-        print("- RATIO: One or both variables are not binary.")
+        print("- BR: One or both variables are not binary.")
 
-    # Binary Difference (DIFF)
+    #BINARY DIFFERENCE (BD)
     if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
         diff = binary_difference(D, facet_name, outcome_name)
-        print("- DIFF for", facet_name, "and", outcome_name, "is", str(diff))
+        print("- BD for", facet_name, "and", outcome_name, "is", str(diff))
     else:
-        print("- DIFF: One or both variables are not binary.")
+        print("- BD: One or both variables are not binary.")
 
-    # Conditional Binary Difference (CondDIFF)
+    #CONDITIONAL BINARY DIFFERENCE (CBD)
     if subgroup_column and D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
         cond_diff = conditional_binary_difference(D, facet_name, outcome_name, subgroup_column)
-        print("- CondDIFF for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_diff))
+        print("- CBD for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_diff))
     else:
-        print("- CondDIFF: Missing conditions for binary conditional difference.")
+        print("- CBD: Missing conditions for binary conditional difference.")
 
-    # Pearson Correlation (CORR)
+    #PEARSON CORRELATION (CORR)
     if D[facet_name].dtype in ['int64', 'float64'] and D[outcome_name].dtype in ['int64', 'float64']:
         corr = pearson_correlation(D, facet_name, outcome_name)
         print("- CORR between", facet_name, "and", outcome_name, "is", str(corr))
     else:
         print("- CORR: Variables are not ordinal.")
 
-    # Logistic Regression (REGRESSION)
+    #LOGISTIC REGRESSION (LR)
     if D[facet_name].nunique() == 2:
         coeffs, intercept = logistic_regression_analysis(D, facet_name, outcome_name)
-        print("- Logistic Regression coefficients for", facet_name, "predicting", outcome_name, "are", str(coeffs))
+        print("- LR coefficients for", facet_name, "predicting", outcome_name, "are", str(coeffs))
         print("  Intercept is", str(intercept))
     else:
-        print("- REGRESSION: Protected feature is not binary or outcome is not multi-labeled.")
+        print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
 
 
 if __name__ == "__main__":
