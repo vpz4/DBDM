@@ -90,7 +90,9 @@ Calculating pre-training data bias metrics...
 
 
 ## Contribution
-Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
+- Contributions are welcome.
+- Please fork the repository and submit pull requests with your enhancements.
+- Ensure that new features are accompanied by appropriate tests and documentation.
 
 ## License
 This project is licensed under the MIT License.<br />
