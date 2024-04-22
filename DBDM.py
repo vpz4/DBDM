@@ -358,35 +358,61 @@ def main():
     #BINARY RATIO (BR)
     if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:  # Check binary nature
         ratio = binary_ratio(D, facet_name, outcome_name)
-        print("- BR for", facet_name, "and", outcome_name, "is", str(ratio))
+        print("- BR for", 
+              facet_name, 
+              "and", 
+              outcome_name, 
+              "is", 
+              str(ratio))
     else:
         print("- BR: One or both variables are not binary.")
 
     #BINARY DIFFERENCE (BD)
     if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
         diff = binary_difference(D, facet_name, outcome_name)
-        print("- BD for", facet_name, "and", outcome_name, "is", str(diff))
+        print("- BD for", 
+              facet_name, 
+              "and", outcome_name, 
+              "is", 
+              str(diff))
     else:
         print("- BD: One or both variables are not binary.")
 
     #CONDITIONAL BINARY DIFFERENCE (CBD)
     if subgroup_column and D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
         cond_diff = conditional_binary_difference(D, facet_name, outcome_name, subgroup_column)
-        print("- CBD for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_diff))
+        print("- CBD for", 
+              facet_name, 
+              "and", 
+              outcome_name, 
+              "conditioned on", 
+              subgroup_column, 
+              "is", 
+              str(cond_diff))
     else:
         print("- CBD: Missing conditions for binary conditional difference.")
 
     #PEARSON CORRELATION (CORR)
     if D[facet_name].dtype in ['int64', 'float64'] and D[outcome_name].dtype in ['int64', 'float64']:
         corr = pearson_correlation(D, facet_name, outcome_name)
-        print("- CORR between", facet_name, "and", outcome_name, "is", str(corr))
+        print("- CORR between", 
+              facet_name, 
+              "and", 
+              outcome_name, 
+              "is", 
+              str(corr))
     else:
         print("- CORR: Variables are not ordinal.")
 
     #LOGISTIC REGRESSION (LR)
     if D[facet_name].nunique() == 2:
         coeffs, intercept = logistic_regression_analysis(D, facet_name, outcome_name)
-        print("- LR coefficients for", facet_name, "predicting", outcome_name, "are", str(coeffs))
+        print("- LR coefficients for", 
+              facet_name, 
+              "predicting", 
+              outcome_name, 
+              "are", 
+              str(coeffs))
         print("  Intercept is", str(intercept))
     else:
         print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
