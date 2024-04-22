@@ -93,7 +93,7 @@ Calculating pre-training data bias metrics...
 Contributions are welcome. Please fork the repository and submit pull requests with your enhancements. Ensure that new features are accompanied by appropriate tests and documentation.
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details.<br />
+This project is licensed under the MIT License.<br />
 
 ## Additional notes
 The script is designed to be modular and easy to extend for additional types of analyses.<br />
