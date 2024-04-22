@@ -19,8 +19,8 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Demographic Disparity (DD):** Computes the disparity for a specific group.
 - **Conditional Demographic Disparity (CDD):** Examines demographic disparities within subgroups.
 - **Kullback-Leibler divergences:** Estimates the Kullback-Leibler (KL) divergence between the probability distributions of the facet and the outcome.
-- **Jensen-Shannon (JS) divergence:** Estimates the Jensen-Shannon (JS) divergence between the facet and the outcome.
-- **Total Variation Distance (TVD):** Measures the distance between probability distributions. 
+- **Jensen-Shannon (JS) divergence:** Estimates the Jensen-Shannon (JS) divergence between the probability distributions of the facet and the outcome.
+- **Total Variation Distance (TVD):** Measures the distance between the probability distributions of the facet and the outcome.
 - **Kolmogorov-Smirnov (KS) metric:** Assesses the statistical distance between the probability distributions of the facet and the outcome.
 - **Normalized Mutual Information (NMI):** Measures the information shared between two categorical variables, normalized to a range of [0, 1] where 1 indicates perfect correlation and 0 indicates no correlation.
 - **Normalized Conditional Mutual Information (NCMI):** Measures the mutual information between two categorical variables, conditioned on a third, normalized over the possible outcomes of the conditioning variable.
