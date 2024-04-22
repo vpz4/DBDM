@@ -22,11 +22,11 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Total Variation Distance (TVD) and Kolmogorov-Smirnov (KS) Metric:** Assesses the statistical distance between the outcome distributions.
 -**Normalized Mutual Information (NMI):** Measures the information shared between two categorical variables, normalized to a range of [0, 1] where 1 indicates perfect correlation and 0 indicates no correlation.
 - **Normalized Conditional Mutual Information (NCMI):** Measures the mutual information between two categorical variables, conditioned on a third, normalized over the possible outcomes of the conditioning variable.
-- **Binary Ratio (BR):** Computes the ratio of positive outcomes between two binary groups, useful for comparing rates of success or occurrence.
-- **Binary Difference (BD):** Calculates the difference in proportions of positive outcomes between two binary groups, highlighting disparities.
+- **Binary Ratio (BR):** Computes the ratio of positive outcomes between two binary groups.
+- **Binary Difference (BD):** Calculates the difference in proportions of positive outcomes between two binary groups to detect disparities.
 - **Conditional Binary Difference (CBD):** Computes the binary difference, conditioned on another categorical feature, to analyze disparities within subgroups.
 - **Pearson Correlation (CORR):** Determines the linear correlation between two ordinal features, with values ranging from -1 (perfect negative correlation) to 1 (perfect positive correlation).
-- **Logistic Regression (LR):** Fits a logistic regression model to predict a multi-labeled outcome from a binary protected feature, providing insight into the influence of the feature on the outcome.
+- **Logistic Regression (LR):** Fits a logistic regression model to predict a multi-labeled outcome from a binary protected feature to asssess the influence of the feature on the outcome.
 
 ## Usage
 - **Running the script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and facet, outcome, subgroup names as described in the Requirements section.
@@ -42,6 +42,7 @@ pip install pandas numpy
 ```
 
 ## Example of console output
+![Capture](https://github.com/vpz4/DBDM/assets/15791743/04135823-500a-43b9-b883-3658bc4488f4)
 
 
 ## Contribution
