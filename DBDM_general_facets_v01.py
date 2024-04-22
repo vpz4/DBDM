@@ -8,6 +8,8 @@ Created on Mon Apr 15 10:08:08 2024
 import pandas as pd
 import numpy as np
 import os
+from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
+from sklearn.linear_model import LogisticRegression
 
 os.chdir(os.getcwd())
 
@@ -121,6 +123,52 @@ def kolmogorov_smirnov_metric(Pa, Pd):
     return ks_metric
 
 
+def normalized_mutual_information(df, facet_name, outcome_name):
+    return normalized_mutual_info_score(df[facet_name], df[outcome_name])
+
+
+def conditional_mutual_information(df, facet_name, outcome_name, conditional_column):
+    unique_values = df[conditional_column].unique()
+    cond_mi = 0
+    for value in unique_values:
+        subset = df[df[conditional_column] == value]
+        mi = mutual_info_score(subset[facet_name], subset[outcome_name])
+        cond_mi += (len(subset) / len(df)) * mi
+    return cond_mi / np.log(len(unique_values))
+
+
+def binary_ratio(df, facet_name, outcome_name):
+    outcomes = df.groupby(facet_name)[outcome_name].mean()
+    return outcomes[1] / outcomes[0]
+
+
+def binary_difference(df, facet_name, outcome_name):
+    outcomes = df.groupby(facet_name)[outcome_name].mean()
+    return outcomes[1] - outcomes[0]
+
+
+def conditional_binary_difference(df, facet_name, outcome_name, conditional_column):
+    unique_values = df[conditional_column].unique()
+    cond_diff = 0
+    for value in unique_values:
+        subset = df[df[conditional_column] == value]
+        diff = binary_difference(subset, facet_name, outcome_name)
+        cond_diff += (len(subset) / len(df)) * diff
+    return cond_diff
+
+
+def pearson_correlation(df, facet_name, outcome_name):
+    return df[facet_name].corr(df[outcome_name])
+
+
+def logistic_regression_analysis(df, facet_name, outcome_name):
+    model = LogisticRegression()
+    X = df[facet_name].values.reshape(-1, 1)  # Reshape for sklearn
+    y = df[outcome_name]
+    model.fit(X, y)
+    return model.coef_, model.intercept_
+
+
 def get_user_input():
     file_path = input("Enter the path to your dataset (CSV or JSON file): ")
     
@@ -139,6 +187,7 @@ def get_user_input():
         return None
     
     return file_path, facet_name, outcome_name, subgroup_column, label_value
+
 
 def load_data(file_path):
     try:
@@ -290,6 +339,53 @@ def main():
             print(">> Warning: Significant bias detected based on KS metric!")
     else:
         print("Cannot compute Jensen-Shannon Divergence, L2 norm, TVD, KS due to data issues.")
+
+   # Normalized Mutual Information (NMI)
+    nmi = normalized_mutual_information(D, facet_name, outcome_name)
+    print("- NMI between", facet_name, "and", outcome_name, "is", str(nmi))
+
+    # Normalized Conditional Mutual Information (CondNMI)
+    if subgroup_column:
+        cond_nmi = conditional_mutual_information(D, facet_name, outcome_name, subgroup_column)
+        print("- CondNMI for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_nmi))
+    else:
+        print("- CondNMI: Subgroup column not provided.")
+
+    # Binary Ratio (RATIO)
+    if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:  # Check binary nature
+        ratio = binary_ratio(D, facet_name, outcome_name)
+        print("- RATIO for", facet_name, "and", outcome_name, "is", str(ratio))
+    else:
+        print("- RATIO: One or both variables are not binary.")
+
+    # Binary Difference (DIFF)
+    if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
+        diff = binary_difference(D, facet_name, outcome_name)
+        print("- DIFF for", facet_name, "and", outcome_name, "is", str(diff))
+    else:
+        print("- DIFF: One or both variables are not binary.")
+
+    # Conditional Binary Difference (CondDIFF)
+    if subgroup_column and D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
+        cond_diff = conditional_binary_difference(D, facet_name, outcome_name, subgroup_column)
+        print("- CondDIFF for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_diff))
+    else:
+        print("- CondDIFF: Missing conditions for binary conditional difference.")
+
+    # Pearson Correlation (CORR)
+    if D[facet_name].dtype in ['int64', 'float64'] and D[outcome_name].dtype in ['int64', 'float64']:
+        corr = pearson_correlation(D, facet_name, outcome_name)
+        print("- CORR between", facet_name, "and", outcome_name, "is", str(corr))
+    else:
+        print("- CORR: Variables are not ordinal.")
+
+    # Logistic Regression (REGRESSION)
+    if D[facet_name].nunique() == 2:
+        coeffs, intercept = logistic_regression_analysis(D, facet_name, outcome_name)
+        print("- Logistic Regression coefficients for", facet_name, "predicting", outcome_name, "are", str(coeffs))
+        print("  Intercept is", str(intercept))
+    else:
+        print("- REGRESSION: Protected feature is not binary or outcome is not multi-labeled.")
 
 
 if __name__ == "__main__":
