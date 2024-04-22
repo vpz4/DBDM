@@ -30,10 +30,6 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Pearson Correlation (CORR):** Determines the linear correlation between two ordinal features, with values ranging from -1 (perfect negative correlation) to 1 (perfect positive correlation).
 - **Logistic Regression (LR):** Fits a logistic regression model to predict a multi-labeled outcome from a binary protected feature to asssess the influence of the feature on the outcome.
 
-## Usage
-- **Running the script:** From the command line, navigate to the script's directory and execute it. The script will request necessary input such as dataset path and facet, outcome, subgroup names as described in the Requirements section.
-- **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports. Warningns are also provided in the case of threshold violations in any of the above metrics.
-
 ## Installation
 To install the toolkit, clone the repository and set up the required environment:
 
@@ -43,7 +39,28 @@ cd DBDM
 pip install pandas numpy
 ```
 
-## Example of console output
+## Usage
+- **Running the script:** From the command line, navigate to the script's directory and execute it.
+```bash
+python DBDM.py
+```
+- **Prompt:** The script will request necessary input such as dataset path and facet, outcome, subgroup names as described in the Requirements section.
+```bash
+Enter the path to your dataset (CSV or JSON file):
+```
+```bash
+Enter the column name for the facet (e.g., Gender):
+```
+```bash
+Enter the column name for the outcome (e.g., Lymphoma):
+```
+```bash
+Enter the column name for subgroup categorization (optional, press Enter to skip):
+```
+```bash
+Enter the label value or threshold for positive outcomes (e.g., 1):
+```
+- **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports. Warningns are also provided in the case of threshold violations in any of the above metrics.
 ![Capture](https://github.com/vpz4/DBDM/assets/15791743/04135823-500a-43b9-b883-3658bc4488f4)
 
 
