@@ -61,8 +61,32 @@ Enter the column name for subgroup categorization (optional, press Enter to skip
 Enter the label value or threshold for positive outcomes (e.g., 1):
 ```
 - **Output:** Outputs bias metrics directly to the console for further analysis or integration into reports. Warningns are also provided in the case of threshold violations in any of the above metrics.
+```bash
+Enter the path to your dataset (CSV or JSON file): test.csv
+Enter the column name for the facet (e.g., Gender): Gender
+Enter the column name for the outcome (e.g., Lymphoma): Lymphoma
+Enter the column name for subgroup categorization (optional, press Enter to skip): 
+Enter the label value or threshold for positive outcomes (e.g., 1): 1
 
-![Capture](https://github.com/vpz4/DBDM/assets/15791743/04135823-500a-43b9-b883-3658bc4488f4)
+Calculating pre-training data bias metrics...
+- CI for Gender is 0.897872340425532
+>> Warning: Significant bias detected based on CI metric!
+- DPL for Gender given the outcome Lymphoma = 1 is 0.005455904334828107
+- Average DD for Gender given the outcome Lymphoma is: -1.0408340855860843e-17
+- Average CDD: Subgroup was not provided.
+- Jensen-Shannon Divergence between Gender and Lymphoma is 4.7313507784679104e-05
+- L2 norm between Gender and Lymphoma is 0.007715813905324001
+- TVD for Gender given Lymphoma is 0.005455904334828059
+- KS metric between Gender and Lymphoma is 0.005455904334828107
+- NMI between Gender and Lymphoma is 3.631951353741736e-05
+- NCMI: Subgroup was not provided.
+- BR for Gender and Lymphoma is 1.0654708520179372
+- BD for Gender and Lymphoma is 0.005455904334828107
+- CBD: Missing conditions for binary conditional difference.
+- CORR between Gender and Lymphoma is 0.004228325385464291
+- LR coefficients for Gender predicting Lymphoma are [[0.06110546]]
+  Intercept is [-2.39097006]
+```
 
 
 ## Contribution
