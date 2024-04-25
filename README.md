@@ -2,7 +2,7 @@
 **An open-source toolkit for data bias detection and mitigation**
 
 ## Description
-This repository hosts a Python-based toolkit which has been designed for the detection and mitigation of data bias in various tabular datasets. It is useful for analyzing facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit utilizes state of the art metrics to provide a holistic view on the detection of pre-training data bias.
+This repository hosts a Python-based toolkit which has been designed for the detection and mitigation of data bias in various tabular datasets. It is useful for analyzing the effect of facets (e.g., Gender) and outcomes (e.g., disease status or test scores). The toolkit utilizes state of the art metrics to provide a holistic view on the detection of pre-training data bias.
 
 ## Requirements
 - **Python version:** Python 3.9 or higher.
@@ -18,7 +18,7 @@ This repository hosts a Python-based toolkit which has been designed for the det
 - **Difference in Proportions of Labels (DPL):** Measures the disparity in the positive outcomes between the groups in the facet.
 - **Demographic Disparity (DD):** Computes the disparity for a specific group.
 - **Conditional Demographic Disparity (CDD):** Examines demographic disparities within subgroups.
-- **Kullback-Leibler divergences:** Estimates the Kullback-Leibler (KL) divergence between the probability distributions of the facet and the outcome.
+- **Kullback-Leibler divergence:** Estimates the Kullback-Leibler (KL) divergence between the probability distributions of the facet and the outcome.
 - **Jensen-Shannon (JS) divergence:** Estimates the Jensen-Shannon (JS) divergence between the probability distributions of the facet and the outcome.
 - **Total Variation Distance (TVD):** Measures the distance between the probability distributions of the facet and the outcome.
 - **Kolmogorov-Smirnov (KS) metric:** Assesses the statistical distance between the probability distributions of the facet and the outcome.
