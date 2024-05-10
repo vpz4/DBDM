@@ -12,21 +12,21 @@ from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
 from sklearn.linear_model import LogisticRegression
 from minisom import MiniSom
 
+
 os.chdir(os.getcwd())
 
 
 def perform_clustering(data):
-    # Estimate grid dimensions based on the heuristic
     som_dim = int(np.sqrt(len(data) / 2))
     som = MiniSom(som_dim, som_dim, data.shape[1], sigma=1.0, learning_rate=0.5)
     som.random_weights_init(data.values)
-    som.train_random(data.values, 500)  # Training with 500 iterations
+    som.train_random(data.values, 500)
 
     # Assign data points to clusters based on winning nodes
     cluster_assignments = np.array([som.winner(d) for d in data.values])
     cluster_map = {}
     for i, x in enumerate(cluster_assignments):
-        cluster_id = x[0] * som_dim + x[1]  # Convert 2D position to single ID
+        cluster_id = x[0] * som_dim + x[1]
         if cluster_id not in cluster_map:
             cluster_map[cluster_id] = []
         cluster_map[cluster_id].append(i)
@@ -111,7 +111,7 @@ def lp_norm(Pa, Pd, p=2):
 
 def generalized_total_variation_distance(df, facet_name, outcome_name):
     outcome_counts = df.groupby([facet_name, outcome_name]).size().unstack(fill_value=0)
-    outcome_probabilities = outcome_counts.div(outcome_counts.sum(axis=1), axis=0)  # Normalize to probabilities
+    outcome_probabilities = outcome_counts.div(outcome_counts.sum(axis=1), axis=0)
 
     facets = outcome_probabilities.index.unique()
     n = len(facets)
@@ -123,7 +123,6 @@ def generalized_total_variation_distance(df, facet_name, outcome_name):
     count = 0
     for i in range(n):
         for j in range(i + 1, n):
-            # Calculate the L1-norm between each pair of groups using probabilities
             na = outcome_probabilities.loc[facets[i]]
             nb = outcome_probabilities.loc[facets[j]]
             l1_norm = sum(abs(na[k] - nb[k]) for k in na.index)
@@ -188,7 +187,7 @@ def pearson_correlation(df, facet_name, outcome_name):
 
 def logistic_regression_analysis(df, facet_name, outcome_name):
     model = LogisticRegression()
-    X = df[facet_name].values.reshape(-1, 1)  # Reshape for sklearn
+    X = df[facet_name].values.reshape(-1, 1)
     y = df[outcome_name]
     model.fit(X, y)
     return model.coef_, model.intercept_
@@ -435,17 +434,17 @@ def calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, su
 def main():
     user_input = get_user_input()
     if user_input is None:
-        return  # Exit if the user input was invalid
+        return
     
     file_path, facet_name, outcome_name, subgroup_column, label_values_or_threshold, use_subgroup_analysis = user_input
     D = load_data(file_path)
     if D is None:
-        return  # Exit if data loading failed
+        return
     
     print("")
 
     if use_subgroup_analysis == 1:
-        cluster_map, num_clusters = perform_clustering(D[[facet_name, outcome_name]])  # Automatically determine clusters
+        cluster_map, num_clusters = perform_clustering(D[[facet_name, outcome_name]])
         print(f"Number of clusters identified is {num_clusters}.")
         for cluster_id, indices in cluster_map.items():
             Dk = D.iloc[indices]
