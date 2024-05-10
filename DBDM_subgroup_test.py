@@ -22,7 +22,6 @@ def perform_clustering(data):
     som.random_weights_init(data.values)
     som.train_random(data.values, 500)
 
-    # Assign data points to clusters based on winning nodes
     cluster_assignments = np.array([som.winner(d) for d in data.values])
     cluster_map = {}
     for i, x in enumerate(cluster_assignments):
@@ -31,7 +30,8 @@ def perform_clustering(data):
             cluster_map[cluster_id] = []
         cluster_map[cluster_id].append(i)
 
-    return cluster_map, som_dim
+    total_possible_clusters = som_dim * som_dim  # This reflects the total number of neurons
+    return cluster_map, total_possible_clusters
 
 
 def calculate_generalized_imbalance(df, facet_name):
@@ -427,7 +427,6 @@ def calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, su
         print("  Intercept is", str(intercept))
     else:
         print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
-    
 
 
 def main():
@@ -443,21 +442,34 @@ def main():
     print("")
 
     if use_subgroup_analysis == 1:
-        cluster_map, num_clusters = perform_clustering(D[[facet_name, outcome_name]])
-        print(f"Number of clusters identified is {num_clusters}.")
+        cluster_map, total_possible_clusters = perform_clustering(D[[facet_name, outcome_name]])
+        num_clusters = len(cluster_map.keys())
+
+        print(f"Total possible clusters: {total_possible_clusters}")
+        print(f"Actual used clusters: {num_clusters}")
+        print("")
+
         ct = 0
         for cluster_id, indices in cluster_map.items():
-            Dk = D.iloc[indices]
-            print(f"\nAnalyzing cluster {ct + 1} / {num_clusters}")
-            ct+=1
+            try:
+                print(f"Starting analysis for cluster {ct + 1} of {num_clusters} with {len(indices)} samples.")
+                Dk = D.iloc[indices]
+                print(f"\nAnalyzing cluster {ct + 1} / {num_clusters}")
+                ct+=1
 
-            if len(np.unique(Dk[outcome_name])) == 1:
-                print(f"Skipping cluster {ct + 1}: Not enough diversity in '{outcome_name}'.")
-            else:
-                try:
-                    calculate_metrics(Dk, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
-                except Exception as e:
-                    print(f"Failed to calculate metrics: {e}")
+                print(f"Unique outcomes {len(np.unique(Dk[outcome_name]))}")
+                print(f"Unique facets {len(np.unique(Dk[facet_name]))}")
+
+                if len(np.unique(Dk[outcome_name])) == 1 or len(np.unique(Dk[facet_name])) == 1:
+                    print(f"Skipping cluster {ct + 1}: Not enough diversity in '{outcome_name}' or in '{facet_name}'.")
+                else:
+                    try:
+                        calculate_metrics(Dk, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+                    except Exception as e:
+                        print(f"Failed to calculate metrics: {e}")
+            except Exception as e:
+                print(f"Error processing cluster {ct + 1}: {e}")
+        print("Done")
     else:
             try:
                 calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
