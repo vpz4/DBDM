@@ -8,13 +8,13 @@ Created on Mon Apr 15 10:08:08 2024
 import pandas as pd
 import numpy as np
 import os
+import warnings
 from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
 from sklearn.linear_model import LogisticRegression
 from minisom import MiniSom
 
-
+warnings.filterwarnings('always')  # To ensure all warnings are shown
 os.chdir(os.getcwd())
-
 
 def perform_clustering(data):
     som_dim = int(np.sqrt(len(data) / 2))
@@ -428,7 +428,6 @@ def calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, su
     else:
         print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
     
-    return True
 
 
 def main():
@@ -446,16 +445,24 @@ def main():
     if use_subgroup_analysis == 1:
         cluster_map, num_clusters = perform_clustering(D[[facet_name, outcome_name]])
         print(f"Number of clusters identified is {num_clusters}.")
+        ct = 0
         for cluster_id, indices in cluster_map.items():
             Dk = D.iloc[indices]
-            print(f"\nAnalyzing cluster {cluster_id + 1} / {num_clusters}")
+            print(f"\nAnalyzing cluster {ct + 1} / {num_clusters}")
+            ct+=1
 
             if len(np.unique(Dk[outcome_name])) == 1:
-                print(f"Skipping cluster {cluster_id + 1}: Not enough diversity in '{outcome_name}'.")
+                print(f"Skipping cluster {ct + 1}: Not enough diversity in '{outcome_name}'.")
             else:
-                calculate_metrics(Dk, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+                try:
+                    calculate_metrics(Dk, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+                except Exception as e:
+                    print(f"Failed to calculate metrics: {e}")
     else:
-        calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+            try:
+                calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+            except Exception as e:
+                print(f"Failed to calculate metrics: {e}")
 
 
 if __name__ == "__main__":
