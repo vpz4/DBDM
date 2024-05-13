@@ -25,7 +25,6 @@ def plot_db_scores(cluster_counts, db_scores, optimal_clusters=None):
     plt.plot(cluster_counts, db_scores, marker='o', linestyle='-', color='b')
     
     if optimal_clusters is not None:
-        # Highlight the optimal number of clusters
         optimal_index = cluster_counts.index(optimal_clusters)
         optimal_score = db_scores[optimal_index]
         plt.scatter(optimal_clusters, optimal_score, color='red', s=100, label=f'Optimal ({optimal_clusters} clusters)')
@@ -495,11 +494,11 @@ def main():
 
         ct = 0
         for cluster_id, indices in cluster_map.items():
+            ct+=1
             try:
                 print(f"Starting analysis for cluster {ct + 1} of {optimal_clusters} with {len(indices)} samples.")
                 Dk = D.iloc[indices]
                 print(f"\nAnalyzing cluster {ct + 1} / {optimal_clusters}")
-                ct+=1
 
                 print(f"Unique outcomes {len(np.unique(Dk[outcome_name]))}")
                 print(f"Unique facets {len(np.unique(Dk[facet_name]))}")
