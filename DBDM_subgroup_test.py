@@ -16,7 +16,7 @@ from minisom import MiniSom
 from sklearn.metrics import davies_bouldin_score
 
 
-warnings.filterwarnings('always')  # To ensure all warnings are shown
+warnings.filterwarnings('always')
 os.chdir(os.getcwd())
 
 
@@ -35,13 +35,13 @@ def plot_db_scores(cluster_counts, db_scores, optimal_clusters=None):
     plt.xlabel('Number of Clusters')
     plt.ylabel('Davies-Bouldin Score')
     plt.grid(True)
-    plt.xticks(cluster_counts)  # Ensure all cluster counts are marked
+    plt.xticks(cluster_counts)
     plt.show()
 
 
 def perform_clustering(data, num_clusters):
     som_dim = int(np.sqrt(num_clusters))
-    sigma_value = min(som_dim / 2, 1.0)  # Reduced sigma to half of the map's dimension or 1.0, whichever is smaller
+    sigma_value = min(som_dim / 2, 1.0)
     som = MiniSom(som_dim, som_dim, data.shape[1], sigma=sigma_value, learning_rate=0.5)
     som.random_weights_init(data.values)
     som.train_random(data.values, 500)
@@ -63,7 +63,7 @@ def find_optimal_clusters(data, max_clusters):
         labels, cluster_map, _ = perform_clustering(data, clusters)
         unique_labels = np.unique(labels)
         
-        if len(unique_labels) > 1:  # Ensure we have more than one cluster
+        if len(unique_labels) > 1:
             score = davies_bouldin_score(data.values, labels)
             db_scores.append(score)
             cluster_counts.append(clusters)
@@ -71,29 +71,10 @@ def find_optimal_clusters(data, max_clusters):
         else:
             print(f"Insufficient clusters ({len(unique_labels)}) for DB score calculation at {clusters} clusters.")
     
-    # Identify the index of the minimum DB score
     min_score_index = db_scores.index(min(db_scores))
     optimal_clusters = cluster_counts[min_score_index]
 
     return cluster_counts, db_scores, optimal_clusters
-
-
-# def perform_clustering(data):
-#     som_dim = int(np.sqrt(len(data) / 2))
-#     som = MiniSom(som_dim, som_dim, data.shape[1], sigma=1.0, learning_rate=0.5)
-#     som.random_weights_init(data.values)
-#     som.train_random(data.values, 500)
-
-#     cluster_assignments = np.array([som.winner(d) for d in data.values])
-#     cluster_map = {}
-#     for i, x in enumerate(cluster_assignments):
-#         cluster_id = x[0] * som_dim + x[1]
-#         if cluster_id not in cluster_map:
-#             cluster_map[cluster_id] = []
-#         cluster_map[cluster_id].append(i)
-
-#     total_possible_clusters = som_dim * som_dim  # This reflects the total number of neurons
-#     return cluster_map, total_possible_clusters
 
 
 def calculate_generalized_imbalance(df, facet_name):
@@ -170,7 +151,6 @@ def lp_norm(Pa, Pd, p=2):
     return np.linalg.norm(Pa - Pd, ord=p)
 
 
-
 def generalized_total_variation_distance(df, facet_name, outcome_name):
     outcome_counts = df.groupby([facet_name, outcome_name]).size().unstack(fill_value=0)
     outcome_probabilities = outcome_counts.div(outcome_counts.sum(axis=1), axis=0)
@@ -194,7 +174,6 @@ def generalized_total_variation_distance(df, facet_name, outcome_name):
 
     average_tvd = total_tvd / count if count > 0 else 0
     return average_tvd
-
 
 
 def kolmogorov_smirnov_metric(Pa, Pd):
@@ -510,14 +489,8 @@ def main():
         print(f"The optimal number of clusters is {optimal_clusters}")
         plot_db_scores(cluster_counts, db_scores, optimal_clusters)
 
+        print("Applying the Minisom")
         _, cluster_map, _ = perform_clustering(D, optimal_clusters)
-
-        # cluster_map, total_possible_clusters = perform_clustering(D[[facet_name, outcome_name]])
-        # cluster_map, total_possible_clusters = perform_clustering(D)
-        # num_clusters = len(cluster_map.keys())
-
-        # print(f"Total possible clusters: {total_possible_clusters}")
-        # print(f"Actual used clusters: {num_clusters}")
         print("")
 
         ct = 0
