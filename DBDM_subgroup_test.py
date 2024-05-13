@@ -45,6 +45,9 @@ def perform_clustering(data, num_clusters):
     som.random_weights_init(data.values)
     som.train_random(data.values, 500)
 
+    # Use train_batch for deterministic training
+    # som.train_batch(data.values, num_iteration=500)
+
     labels = np.array([som.winner(d)[0] * som_dim + som.winner(d)[1] for d in data.values])
     cluster_map = {}
     for idx, label in enumerate(labels):
