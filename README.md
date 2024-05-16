@@ -96,165 +96,75 @@ Enter the column name for the outcome (e.g., Lymphoma): Lymphoma
 Enter the column name for subgroup categorization (optional, press Enter to skip): 
 Enter the label value or threshold for positive outcomes (e.g., 1): 1
 
-Insufficient clusters (1) for DB score calculation at 2 clusters.
-Insufficient clusters (1) for DB score calculation at 3 clusters.
-DB score for 4 clusters: 0.947099647714959
-DB score for 5 clusters: 0.9854707833517176
-DB score for 6 clusters: 0.9586702107017073
-DB score for 7 clusters: 1.0515492504881534
-DB score for 8 clusters: 1.0451974470258398
-DB score for 9 clusters: 0.9901106832225159
-DB score for 10 clusters: 1.0460494036553947
-DB score for 11 clusters: 1.0555180431428168
-DB score for 12 clusters: 1.060176025851847
-DB score for 13 clusters: 0.9817792741187839
-DB score for 14 clusters: 1.0579531824017483
-DB score for 15 clusters: 0.9367636313432004
-DB score for 16 clusters: 0.9920200141083888
-DB score for 17 clusters: 1.008404782131915
-DB score for 18 clusters: 0.9877050559780625
-DB score for 19 clusters: 1.0131617428890853
-DB score for 20 clusters: 0.9908491442005372
-DB score for 21 clusters: 1.0817318254422816
-DB score for 22 clusters: 0.9889997087817398
-DB score for 23 clusters: 0.9985742412151416
-DB score for 24 clusters: 1.0190581536740844
-DB score for 25 clusters: 1.0562099787500703
-DB score for 26 clusters: 1.1868725106727038
-DB score for 27 clusters: 1.0882489726377005
-DB score for 28 clusters: 1.125281977834633
-DB score for 29 clusters: 1.0959063397904472
-DB score for 30 clusters: 1.1513001276359944
-The optimal number of clusters is 15
-Applying the Minisom
+DB Score for 2 clusters: 0.8366707826706445
+DB Score for 3 clusters: 0.8992724031690805
+DB Score for 4 clusters: 0.9481305663368798
+DB Score for 5 clusters: 0.9104716780225016
+DB Score for 6 clusters: 0.9167542479340357
+DB Score for 7 clusters: 1.04261707581957
+DB Score for 8 clusters: 0.9826945968326137
+DB Score for 9 clusters: 0.95853804899992
+DB Score for 10 clusters: 0.9375362591430827
+DB Score for 11 clusters: 0.9878578993873958
+DB Score for 12 clusters: 0.98957960334394
+DB Score for 13 clusters: 1.0664137728508025
+DB Score for 14 clusters: 1.0256051464009408
+DB Score for 15 clusters: 1.0321304020928317
+DB Score for 16 clusters: 1.0100857834920873
+DB Score for 17 clusters: 1.0899092989989714
+DB Score for 18 clusters: 1.0570953512110735
+DB Score for 19 clusters: 1.101991476823526
+DB Score for 20 clusters: 1.0271731771154786
+DB Score for 21 clusters: 1.1323183373925332
+DB Score for 22 clusters: 1.0600443170312999
+DB Score for 23 clusters: 1.1752693164274097
+DB Score for 24 clusters: 1.1583490978951878
+DB Score for 25 clusters: 1.1775202186437215
+DB Score for 26 clusters: 1.2405592244428243
+DB Score for 27 clusters: 1.1613712803648617
+DB Score for 28 clusters: 1.1785194201812899
+DB Score for 29 clusters: 1.1672976670962065
+DB Score for 30 clusters: 1.1835632671263867
+The optimal number of clusters is 2
 
-Starting analysis for cluster 2 of 15 with 132 samples.
-
-Analyzing cluster 2 / 15
-Unique outcomes 2
-Unique facets 2
+Starting analysis for cluster 1 of 2 with 525 samples.
 Calculating pre-training data bias metrics...
-- CI for Gender is 0.8787878787878789
-- DPL for Gender given the outcome Lymphoma = 1 is -0.11290322580645162
->> Warning: Significant bias detected based on DPL metric!
-- Average DD for Gender given the outcome Lymphoma is: -1.3877787807814457e-17
+- CI for Gender is 0.9047619047619047
+>> Warning: Significant bias detected based on CI metric!
+- DPL for Gender given the outcome Lymphoma = 1 is 0.0040000000000000036
+- Average DD for Gender given the outcome Lymphoma is: 6.938893903907228e-18
 - Average CDD: Subgroup was not provided.
-- Jensen-Shannon Divergence between Gender and Lymphoma is 0.010330835824001284
-- L2 norm between Gender and Lymphoma is 0.1596692731711559
->> Warning: Significant bias detected based on L2 norm metric!
-- TVD for Gender given Lymphoma is 0.11290322580645162
->> Warning: Significant bias detected based on TVD metric!
-- KS metric between Gender and Lymphoma is 0.11290322580645162
->> Warning: Significant bias detected based on KS metric!
-- NMI between Gender and Lymphoma is 0.007908386512665984
+- Jensen-Shannon Divergence between Gender and Lymphoma is 2.6571313666603948e-05
+- L2 norm between Gender and Lymphoma is 0.005656854249492385
+- TVD for Gender given Lymphoma is 0.0040000000000000036
+- KS metric between Gender and Lymphoma is 0.0040000000000000036
+- NMI between Gender and Lymphoma is 1.9975183644356853e-05
 - NCMI: Subgroup was not provided.
-- BR for Gender and Lymphoma is 0.5483870967741935
-- BD for Gender and Lymphoma is -0.11290322580645162
+- BR for Gender and Lymphoma is 1.05
+- BD for Gender and Lymphoma is 0.0040000000000000036
 - CBD: Missing conditions for binary conditional difference.
-- CORR between Gender and Lymphoma is -0.07674430622296582
-- LR coefficients for Gender predicting Lymphoma are [[-0.41205176]]
-  Intercept is [-1.40006934]
-Starting analysis for cluster 3 of 15 with 179 samples.
+- CORR between Gender and Lymphoma is 0.0030740867668317016
+- LR coefficients for Gender predicting Lymphoma are [[0.03741296]]
+  Intercept is [-2.42780331]
 
-Analyzing cluster 3 / 15
-Unique outcomes 2
-Unique facets 2
+Starting analysis for cluster 2 of 2 with 650 samples.
 Calculating pre-training data bias metrics...
-- CI for Gender is 0.8659217877094971
-- DPL for Gender given the outcome Lymphoma = 1 is -0.1307385229540918
->> Warning: Significant bias detected based on DPL metric!
-- Average DD for Gender given the outcome Lymphoma is: -6.938893903907228e-18
+- CI for Gender is 0.8923076923076922
+- DPL for Gender given the outcome Lymphoma = 1 is 0.006968641114982577
+- Average DD for Gender given the outcome Lymphoma is: 0.0
 - Average CDD: Subgroup was not provided.
-- Jensen-Shannon Divergence between Gender and Lymphoma is 0.025253602790681316
-- L2 norm between Gender and Lymphoma is 0.18489219228630283
->> Warning: Significant bias detected based on L2 norm metric!
-- TVD for Gender given Lymphoma is 0.13073852295409183
->> Warning: Significant bias detected based on TVD metric!
-- KS metric between Gender and Lymphoma is 0.13073852295409183
->> Warning: Significant bias detected based on KS metric!
-- NMI between Gender and Lymphoma is 0.03721022415202665
+- Jensen-Shannon Divergence between Gender and Lymphoma is 7.473519897611557e-05
+- L2 norm between Gender and Lymphoma is 0.009855146776119088
+- TVD for Gender given Lymphoma is 0.006968641114982549
+- KS metric between Gender and Lymphoma is 0.006968641114982577
+- NMI between Gender and Lymphoma is 5.825007056533386e-05
 - NCMI: Subgroup was not provided.
-- BR for Gender and Lymphoma is 0.2155688622754491
-- BD for Gender and Lymphoma is -0.1307385229540918
+- BR for Gender and Lymphoma is 1.08130081300813
+- BD for Gender and Lymphoma is 0.006968641114982577
 - CBD: Missing conditions for binary conditional difference.
-- CORR between Gender and Lymphoma is -0.1582374894909201
-- LR coefficients for Gender predicting Lymphoma are [[-0.87544112]]
-  Intercept is [-2.27293816]
-Starting analysis for cluster 4 of 15 with 163 samples.
-
-Analyzing cluster 4 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.852760736196319
-- DPL for Gender given the outcome Lymphoma = 1 is 0.016004415011037526
-- Average DD for Gender given the outcome Lymphoma is: -6.938893903907228e-18
-- Average CDD: Subgroup was not provided.
-- Jensen-Shannon Divergence between Gender and Lymphoma is 0.00038623614688024395
-- L2 norm between Gender and Lymphoma is 0.02263366076645676
-- TVD for Gender given Lymphoma is 0.016004415011037484
-- KS metric between Gender and Lymphoma is 0.016004415011037526
-- NMI between Gender and Lymphoma is 0.0003530855727628696
-- NCMI: Subgroup was not provided.
-- BR for Gender and Lymphoma is 1.1920529801324504
-- BD for Gender and Lymphoma is 0.016004415011037526
-- CBD: Missing conditions for binary conditional difference.
-- CORR between Gender and Lymphoma is 0.0140475388716452
-- LR coefficients for Gender predicting Lymphoma are [[0.09287414]]
-  Intercept is [-2.30435945]
-Starting analysis for cluster 5 of 15 with 147 samples.
-
-Analyzing cluster 5 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.9183673469387754
->> Warning: Significant bias detected based on CI metric!
-Failed to calculate metrics: 0
-Starting analysis for cluster 6 of 15 with 114 samples.
-
-Analyzing cluster 6 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.9473684210526316
->> Warning: Significant bias detected based on CI metric!
-Failed to calculate metrics: 0
-Starting analysis for cluster 7 of 15 with 184 samples.
-
-Analyzing cluster 7 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.8913043478260869
-Failed to calculate metrics: 0
-Starting analysis for cluster 8 of 15 with 100 samples.
-
-Analyzing cluster 8 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.94
->> Warning: Significant bias detected based on CI metric!
-Failed to calculate metrics: 0
-Starting analysis for cluster 9 of 15 with 79 samples.
-
-Analyzing cluster 9 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.9746835443037976
->> Warning: Significant bias detected based on CI metric!
-Failed to calculate metrics: 0
-Starting analysis for cluster 10 of 15 with 77 samples.
-
-Analyzing cluster 10 / 15
-Unique outcomes 2
-Unique facets 2
-Calculating pre-training data bias metrics...
-- CI for Gender is 0.8701298701298701
-Failed to calculate metrics: 0
-Done
+- CORR between Gender and Lymphoma is 0.005433980154336431
+- LR coefficients for Gender predicting Lymphoma are [[0.06472355]]
+  Intercept is [-2.34733534]
 ```
 
 ## Contribution

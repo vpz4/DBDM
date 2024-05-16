@@ -14,13 +14,32 @@ import matplotlib
 from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
 from sklearn.linear_model import LogisticRegression
 from minisom import MiniSom
-from sklearn.metrics import davies_bouldin_score
+from sklearn.metrics import davies_bouldin_score, silhouette_score
+
 
 matplotlib.use('Agg')
-warnings.filterwarnings('always')
+warnings.filterwarnings('ignore')
 os.chdir(os.getcwd())
 
 
+def plot_silhouette_scores(cluster_counts, silhouette_scores, optimal_clusters=None):
+    plt.figure(figsize=(10, 6))
+    plt.plot(cluster_counts, silhouette_scores, marker='o', linestyle='-', color='b')
+    
+    if optimal_clusters is not None:
+        optimal_index = cluster_counts.index(optimal_clusters)
+        optimal_score = silhouette_scores[optimal_index]
+        plt.scatter(optimal_clusters, optimal_score, color='red', s=100, label=f'Optimal ({optimal_clusters} clusters)')
+        plt.legend()
+    
+    plt.title('Silhouette scores by Number of Clusters')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Silhouette score')
+    plt.grid(True)
+    plt.xticks(cluster_counts)
+    plt.show()
+
+    
 def plot_db_scores(cluster_counts, db_scores, optimal_clusters=None):
     plt.figure(figsize=(10, 6))
     plt.plot(cluster_counts, db_scores, marker='o', linestyle='-', color='b')
@@ -31,53 +50,86 @@ def plot_db_scores(cluster_counts, db_scores, optimal_clusters=None):
         plt.scatter(optimal_clusters, optimal_score, color='red', s=100, label=f'Optimal ({optimal_clusters} clusters)')
         plt.legend()
     
-    plt.title('Davies-Bouldin Scores by Number of Clusters')
-    plt.xlabel('Number of Clusters')
-    plt.ylabel('Davies-Bouldin Score')
+    plt.title('Davies-Bouldin scores by number of clusters')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Davies-Bouldin score')
     plt.grid(True)
     plt.xticks(cluster_counts)
     plt.show()
 
 
 def perform_clustering(data, num_clusters):
-    som_dim = int(np.sqrt(num_clusters))
-    sigma_value = min(som_dim / 2, 1.0)
-    som = MiniSom(som_dim, som_dim, data.shape[1], sigma=sigma_value, learning_rate=0.5)
+    som_dim_x = int(np.ceil(np.sqrt(num_clusters)))
+    som_dim_y = int(np.ceil(num_clusters / som_dim_x))
+    sigma_value = min(som_dim_x, som_dim_y) / 2
+
+    # print(f"Performing clustering with {som_dim_x}x{som_dim_y} grid and sigma={sigma_value}")
+
+    som = MiniSom(som_dim_x, som_dim_y, data.shape[1], sigma=sigma_value, learning_rate=0.5)
     som.random_weights_init(data.values)
-    som.train_random(data.values, 500)
+    som.train_random(data.values, 1000)
 
-    # Use train_batch for deterministic training
-    # som.train_batch(data.values, num_iteration=500)
-
-    labels = np.array([som.winner(d)[0] * som_dim + som.winner(d)[1] for d in data.values])
-    cluster_map = {}
+    labels = np.array([som.winner(d)[0] * som_dim_y + som.winner(d)[1] for d in data.values])
+    
+    max_label = som_dim_x * som_dim_y - 1
+    labels = np.clip(labels, 0, max_label)
+    
+    cluster_map = {i: [] for i in range(max_label + 1)}
+    
     for idx, label in enumerate(labels):
-        if label not in cluster_map:
-            cluster_map[label] = []
         cluster_map[label].append(idx)
 
     return labels, cluster_map, som
 
 
-def find_optimal_clusters(data, max_clusters):
+def find_optimal_clusters_db(data, max_clusters):
     db_scores = []
     cluster_counts = []
     for clusters in range(2, max_clusters + 1):
         labels, cluster_map, _ = perform_clustering(data, clusters)
         unique_labels = np.unique(labels)
         
-        if len(unique_labels) > 1:
-            score = davies_bouldin_score(data.values, labels)
+        non_empty_labels = [label for label in unique_labels if len(cluster_map[label]) > 0]
+        if len(non_empty_labels) > 1:
+            filtered_labels = np.array([label if label in non_empty_labels else -1 for label in labels])
+            filtered_data = data[filtered_labels != -1]
+            score = davies_bouldin_score(filtered_data.values, filtered_labels[filtered_labels != -1])
             db_scores.append(score)
-            cluster_counts.append(clusters)
+            cluster_counts.append(len(non_empty_labels))
+            # print(f"DB Score for {clusters} clusters: {score} (Effective Clusters: {len(non_empty_labels)})")
             print(f"DB Score for {clusters} clusters: {score}")
         else:
-            print(f"Insufficient clusters ({len(unique_labels)}) for DB score calculation at {clusters} clusters.")
+            print(f"Insufficient clusters ({len(non_empty_labels)}) for DB score calculation at {clusters} clusters.")
     
     min_score_index = db_scores.index(min(db_scores))
     optimal_clusters = cluster_counts[min_score_index]
 
     return cluster_counts, db_scores, optimal_clusters
+
+
+def find_optimal_clusters_silh(data, max_clusters):
+    silhouette_scores = []
+    cluster_counts = list(range(2, max_clusters + 1))
+    
+    for clusters in cluster_counts:
+        labels, cluster_map, _ = perform_clustering(data, clusters)
+        unique_labels = np.unique(labels)
+        non_empty_labels = [label for label in unique_labels if len(cluster_map[label]) > 0]
+        if len(non_empty_labels) > 1:
+            filtered_labels = np.array([label if label in non_empty_labels else -1 for label in labels])
+            filtered_data = data[filtered_labels != -1]
+            score = silhouette_score(filtered_data.values, filtered_labels[filtered_labels != -1])
+            silhouette_scores.append(score)
+            # print(f"Silhouette Score for {clusters} clusters: {score} (Effective Clusters: {len(non_empty_labels)})")
+            print(f"Silhouette Score for {clusters} clusters: {score}")
+        else:
+            silhouette_scores.append(-1)
+            print(f"Insufficient clusters ({len(non_empty_labels)}) for Silhouette score calculation at {clusters} clusters.")
+    
+    max_score_index = silhouette_scores.index(max(silhouette_scores))
+    optimal_clusters = cluster_counts[max_score_index]
+
+    return cluster_counts, silhouette_scores, optimal_clusters
 
 
 def calculate_generalized_imbalance(df, facet_name):
@@ -272,206 +324,221 @@ def load_data(file_path):
 def calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, subgroup_column):
     print("Calculating pre-training data bias metrics...")
     
-    #CLASS IMBALANCE (CI)
-    ci = calculate_generalized_imbalance(D, facet_name)
-    print("- CI for", facet_name, "is", str(ci))
-    
-    #CI values near either of the extremes values of -1 or 1 are very imbalanced and are at a substantial risk of making biased predictions.
-    if ((np.around(ci,2) >= 0.9)|(np.around(ci,2) <= -0.9)):
-        print(">> Warning: Significant bias detected based on CI metric!")
-    
-    #DIFFERENCE IN PROPORTION LABELS (DPL)
-    num_facet = D[facet_name].value_counts()
-    num_facet_adv = num_facet[1] #favored facet values
-    num_facet_disadv = num_facet[0] #disfavored facet values
-    num_facet_and_pos_label = D[facet_name].where(D[outcome_name] == label_values_or_threshold).value_counts()
-    num_facet_and_pos_label_adv = num_facet_and_pos_label[1]
-    num_facet_and_pos_label_disadv = num_facet_and_pos_label[0]
-    dpl = calculate_difference_in_proportions(num_facet_and_pos_label_adv,
-                                              num_facet_adv,
-                                              num_facet_and_pos_label_disadv,
-                                              num_facet_disadv)
-    print("- DPL for", 
-          facet_name, 
-          "given the outcome", 
-          outcome_name, 
-          "=", 
-          str(label_values_or_threshold), 
-          "is", 
-          str(dpl))
-    
-    if abs(dpl) > 0.1:
-        print(">> Warning: Significant bias detected based on DPL metric!")
-    
-    #DEMOGRAPHIC DISPARITY (DD)
-    dd = generalized_demographic_disparity(D, 
-                                           facet_name, 
-                                           outcome_name, 
-                                           reference_group=None)
-    print("- Average DD for", 
-          facet_name,
-          "given the outcome",
-          outcome_name,
-          "is:", 
-          str(dd.mean().mean()))
-    
-    if abs(dd.mean().mean()) > 0.1:
-        print(">> Warning: Significant bias detected based on DD metric!")
-    
-    #CONDITIONAL DEMOGRAPHIC DISPARITY (CDD)
-    if subgroup_column.strip():  # Check if subgroup_column is provided and not just an empty string
-        cdd = generalized_conditional_demographic_disparity(D, 
-                                                            facet_name, 
-                                                            outcome_name, 
-                                                            subgroup_column)
-        print("- Average CDD for", 
-              facet_name,
-              "given the outcome",
-              outcome_name,
-              "conditioned by",
-              subgroup_column,
-              "is:", 
-              str(cdd.mean().mean()))
+    try:
+        #CLASS IMBALANCE (CI)
+        ci = calculate_generalized_imbalance(D, facet_name)
+        print("- CI for", facet_name, "is", str(ci))
         
-        if (cdd.mean().mean()) > 0.1:
-            print(">> Warning: Significant bias detected based on CDD metric!")
-    else:
-        print("- Average CDD: Subgroup was not provided.")   
-    
-    #Compute the probability distributions for the facets
-    probability_distributions = compute_probability_distributions(D, 
-                                                                  facet_name, 
-                                                                  outcome_name)
-    Pa = probability_distributions.get(1, np.array([]))
-    Pd = probability_distributions.get(0, np.array([]))
-    
-    if Pa.size > 0 and Pd.size > 0 and Pa.size == Pd.size:
-        #JENSEN-SHANNON DIVERGENCE
-        js_divergence = jensen_shannon_divergence(Pa, Pd)
-        print("- Jensen-Shannon Divergence between", 
-              facet_name,
-              "and",
-              outcome_name,
+        #CI values near either of the extremes values of -1 or 1 are very imbalanced and are at a substantial risk of making biased predictions.
+        if ((np.around(ci,2) >= 0.9)|(np.around(ci,2) <= -0.9)):
+            print(">> Warning: Significant bias detected based on CI metric!")
+        
+        # DIFFERENCE IN PROPORTION LABELS (DPL)
+        num_facet = D[facet_name].value_counts()
+        
+        if 1 in num_facet:
+            num_facet_adv = num_facet[1]  # favored facet values
+        else:
+            num_facet_adv = 0
+        
+        if 0 in num_facet:
+            num_facet_disadv = num_facet[0]  # disfavored facet values
+        else:
+            num_facet_disadv = 0
+        
+        num_facet_and_pos_label = D[facet_name].where(D[outcome_name] == label_values_or_threshold).value_counts()
+        
+        num_facet_and_pos_label_adv = num_facet_and_pos_label.get(1, 0)
+        num_facet_and_pos_label_disadv = num_facet_and_pos_label.get(0, 0)
+        
+        dpl = calculate_difference_in_proportions(num_facet_and_pos_label_adv,
+                                                  num_facet_adv,
+                                                  num_facet_and_pos_label_disadv,
+                                                  num_facet_disadv)
+        print("- DPL for", 
+              facet_name, 
+              "given the outcome", 
+              outcome_name, 
+              "=", 
+              str(label_values_or_threshold), 
               "is", 
-              str(js_divergence))
+              str(dpl))
         
-        if js_divergence > 0.1:
-            print(">> Warning: Significant bias detected based on JS metric!")
+        if abs(dpl) > 0.1:
+            print(">> Warning: Significant bias detected based on DPL metric!")
         
-        #L2 NORM
-        l2_norm_value = lp_norm(Pa, Pd, p=2)
-        print("- L2 norm between", 
-              facet_name,
-              "and",
-              outcome_name,
-              "is", 
-              str(l2_norm_value))
+        #DEMOGRAPHIC DISPARITY (DD)
+        dd = generalized_demographic_disparity(D, 
+                                            facet_name, 
+                                            outcome_name, 
+                                            reference_group=None)
+        print("- Average DD for", 
+            facet_name,
+            "given the outcome",
+            outcome_name,
+            "is:", 
+            str(dd.mean().mean()))
         
-        if l2_norm_value > 0.1:
-            print(">> Warning: Significant bias detected based on L2 norm metric!")
+        if abs(dd.mean().mean()) > 0.1:
+            print(">> Warning: Significant bias detected based on DD metric!")
+        
+        #CONDITIONAL DEMOGRAPHIC DISPARITY (CDD)
+        if subgroup_column.strip():  # Check if subgroup_column is provided and not just an empty string
+            cdd = generalized_conditional_demographic_disparity(D, 
+                                                                facet_name, 
+                                                                outcome_name, 
+                                                                subgroup_column)
+            print("- Average CDD for", 
+                facet_name,
+                "given the outcome",
+                outcome_name,
+                "conditioned by",
+                subgroup_column,
+                "is:", 
+                str(cdd.mean().mean()))
             
-        #TOTAL VARIATION DISTANCE (TVD)
-        try:
-            tvd = generalized_total_variation_distance(D, facet_name, outcome_name)
-            print("- TVD for", 
-                  facet_name,
-                  "given",
-                  outcome_name,
-                  "is", 
-                  str(tvd))
+            if (cdd.mean().mean()) > 0.1:
+                print(">> Warning: Significant bias detected based on CDD metric!")
+        else:
+            print("- Average CDD: Subgroup was not provided.")   
+        
+        #Compute the probability distributions for the facets
+        probability_distributions = compute_probability_distributions(D, 
+                                                                    facet_name, 
+                                                                    outcome_name)
+        Pa = probability_distributions.get(1, np.array([]))
+        Pd = probability_distributions.get(0, np.array([]))
+        
+        if Pa.size > 0 and Pd.size > 0 and Pa.size == Pd.size:
+            #JENSEN-SHANNON DIVERGENCE
+            js_divergence = jensen_shannon_divergence(Pa, Pd)
+            print("- Jensen-Shannon Divergence between", 
+                facet_name,
+                "and",
+                outcome_name,
+                "is", 
+                str(js_divergence))
             
-            if tvd > 0.1:
-                print(">> Warning: Significant bias detected based on TVD metric!")
-             
-        except ValueError as e:
-            print(e)
+            if js_divergence > 0.1:
+                print(">> Warning: Significant bias detected based on JS metric!")
             
-        #KS METRIC
-        ks_value = kolmogorov_smirnov_metric(Pa, Pd)
-        print("- KS metric between", 
-              facet_name,
-              "and",
-              outcome_name,
-              "is", 
-              str(ks_value))
-        if abs(ks_value) > 0.1:
-            print(">> Warning: Significant bias detected based on KS metric!")
-    else:
-        print("Cannot compute Jensen-Shannon Divergence, L2 norm, TVD, KS due to data issues.")
+            #L2 NORM
+            l2_norm_value = lp_norm(Pa, Pd, p=2)
+            print("- L2 norm between", 
+                facet_name,
+                "and",
+                outcome_name,
+                "is", 
+                str(l2_norm_value))
+            
+            if l2_norm_value > 0.1:
+                print(">> Warning: Significant bias detected based on L2 norm metric!")
+                
+            #TOTAL VARIATION DISTANCE (TVD)
+            try:
+                tvd = generalized_total_variation_distance(D, facet_name, outcome_name)
+                print("- TVD for", 
+                    facet_name,
+                    "given",
+                    outcome_name,
+                    "is", 
+                    str(tvd))
+                
+                if tvd > 0.1:
+                    print(">> Warning: Significant bias detected based on TVD metric!")
+                
+            except ValueError as e:
+                print(e)
+                
+            #KS METRIC
+            ks_value = kolmogorov_smirnov_metric(Pa, Pd)
+            print("- KS metric between", 
+                facet_name,
+                "and",
+                outcome_name,
+                "is", 
+                str(ks_value))
+            if abs(ks_value) > 0.1:
+                print(">> Warning: Significant bias detected based on KS metric!")
+        else:
+            print("Cannot compute Jensen-Shannon Divergence, L2 norm, TVD, KS due to data issues.")
 
-   #NORMALIZED MUTUAL INFORMATION (NMI)
-    nmi = normalized_mutual_information(D, facet_name, outcome_name)
-    print("- NMI between", facet_name, "and", outcome_name, "is", str(nmi))
+        #NORMALIZED MUTUAL INFORMATION (NMI)
+        nmi = normalized_mutual_information(D, facet_name, outcome_name)
+        print("- NMI between", facet_name, "and", outcome_name, "is", str(nmi))
 
-    #NORMALIZED CONDITIONAL MUTUAL INFORMATION (NCMI)
-    if subgroup_column:
-        cond_nmi = conditional_mutual_information(D, facet_name, outcome_name, subgroup_column)
-        print("- NCMI for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_nmi))
-    else:
-        print("- NCMI: Subgroup was not provided.")
+        #NORMALIZED CONDITIONAL MUTUAL INFORMATION (NCMI)
+        if subgroup_column:
+            cond_nmi = conditional_mutual_information(D, facet_name, outcome_name, subgroup_column)
+            print("- NCMI for", facet_name, "and", outcome_name, "conditioned on", subgroup_column, "is", str(cond_nmi))
+        else:
+            print("- NCMI: Subgroup was not provided.")
 
-    #BINARY RATIO (BR)
-    if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:  # Check binary nature
-        ratio = binary_ratio(D, facet_name, outcome_name)
-        print("- BR for", 
-              facet_name, 
-              "and", 
-              outcome_name, 
-              "is", 
-              str(ratio))
-    else:
-        print("- BR: One or both variables are not binary.")
+        #BINARY RATIO (BR)
+        if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:  # Check binary nature
+            ratio = binary_ratio(D, facet_name, outcome_name)
+            print("- BR for", 
+                facet_name, 
+                "and", 
+                outcome_name, 
+                "is", 
+                str(ratio))
+        else:
+            print("- BR: One or both variables are not binary.")
 
-    #BINARY DIFFERENCE (BD)
-    if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
-        diff = binary_difference(D, facet_name, outcome_name)
-        print("- BD for", 
-              facet_name, 
-              "and", outcome_name, 
-              "is", 
-              str(diff))
-    else:
-        print("- BD: One or both variables are not binary.")
+        #BINARY DIFFERENCE (BD)
+        if D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
+            diff = binary_difference(D, facet_name, outcome_name)
+            print("- BD for", 
+                facet_name, 
+                "and", outcome_name, 
+                "is", 
+                str(diff))
+        else:
+            print("- BD: One or both variables are not binary.")
 
-    #CONDITIONAL BINARY DIFFERENCE (CBD)
-    if subgroup_column and D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
-        cond_diff = conditional_binary_difference(D, facet_name, outcome_name, subgroup_column)
-        print("- CBD for", 
-              facet_name, 
-              "and", 
-              outcome_name, 
-              "conditioned on", 
-              subgroup_column, 
-              "is", 
-              str(cond_diff))
-    else:
-        print("- CBD: Missing conditions for binary conditional difference.")
+        #CONDITIONAL BINARY DIFFERENCE (CBD)
+        if subgroup_column and D[facet_name].nunique() == 2 and D[outcome_name].nunique() == 2:
+            cond_diff = conditional_binary_difference(D, facet_name, outcome_name, subgroup_column)
+            print("- CBD for", 
+                facet_name, 
+                "and", 
+                outcome_name, 
+                "conditioned on", 
+                subgroup_column, 
+                "is", 
+                str(cond_diff))
+        else:
+            print("- CBD: Missing conditions for binary conditional difference.")
 
-    #PEARSON CORRELATION (CORR)
-    if D[facet_name].dtype in ['int64', 'float64'] and D[outcome_name].dtype in ['int64', 'float64']:
-        corr = pearson_correlation(D, facet_name, outcome_name)
-        print("- CORR between", 
-              facet_name, 
-              "and", 
-              outcome_name, 
-              "is", 
-              str(corr))
-    else:
-        print("- CORR: Variables are not ordinal.")
+        #PEARSON CORRELATION (CORR)
+        if D[facet_name].dtype in ['int64', 'float64'] and D[outcome_name].dtype in ['int64', 'float64']:
+            corr = pearson_correlation(D, facet_name, outcome_name)
+            print("- CORR between", 
+                facet_name, 
+                "and", 
+                outcome_name, 
+                "is", 
+                str(corr))
+        else:
+            print("- CORR: Variables are not ordinal.")
 
-    #LOGISTIC REGRESSION (LR)
-    if D[facet_name].nunique() == 2:
-        coeffs, intercept = logistic_regression_analysis(D, facet_name, outcome_name)
-        print("- LR coefficients for", 
-              facet_name, 
-              "predicting", 
-              outcome_name, 
-              "are", 
-              str(coeffs))
-        print("  Intercept is", str(intercept))
-    else:
-        print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
-
+        #LOGISTIC REGRESSION (LR)
+        if D[facet_name].nunique() == 2:
+            coeffs, intercept = logistic_regression_analysis(D, facet_name, outcome_name)
+            print("- LR coefficients for", 
+                facet_name, 
+                "predicting", 
+                outcome_name, 
+                "are", 
+                str(coeffs))
+            print("  Intercept is", str(intercept))
+        else:
+            print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
+    except ZeroDivisionError as e:
+        print("ZeroDivisionError: ", e)
+    except Exception as e:
+        print("Error: ", e)
 
 def main():
     user_input = get_user_input()
@@ -487,35 +554,36 @@ def main():
 
     if use_subgroup_analysis == 1:
         max_clusters = 30
-        cluster_counts, db_scores, optimal_clusters = find_optimal_clusters(D, max_clusters)
+        cluster_counts, db_scores, optimal_clusters = find_optimal_clusters_db(D, max_clusters)
+        # cluster_counts, silhouette_scores, optimal_clusters = find_optimal_clusters_silh(D, max_clusters)
 
         print(f"The optimal number of clusters is {optimal_clusters}")
         plot_db_scores(cluster_counts, db_scores, optimal_clusters)
+        # plot_silhouette_scores(cluster_counts, silhouette_scores, optimal_clusters)
 
-        print("Applying the Minisom")
+        # print("Applying the Minisom")
         _, cluster_map, _ = perform_clustering(D, optimal_clusters)
-        print("")
 
         ct = 0
         for cluster_id, indices in cluster_map.items():
             ct+=1
             try:
-                print(f"Starting analysis for cluster {ct + 1} of {optimal_clusters} with {len(indices)} samples.")
+                print(f"\nStarting analysis for cluster {ct} of {optimal_clusters} with {len(indices)} samples.")
                 Dk = D.iloc[indices]
-                print(f"\nAnalyzing cluster {ct + 1} / {optimal_clusters}")
 
-                print(f"Unique outcomes {len(np.unique(Dk[outcome_name]))}")
-                print(f"Unique facets {len(np.unique(Dk[facet_name]))}")
+                # print(f"Analyzing cluster {ct} / {optimal_clusters}")
+                # print(f"Unique outcomes {len(np.unique(Dk[outcome_name]))}")
+                # print(f"Unique facets {len(np.unique(Dk[facet_name]))}")
 
                 if len(np.unique(Dk[outcome_name])) == 1 or len(np.unique(Dk[facet_name])) == 1:
-                    print(f"Skipping cluster {ct + 1}: Not enough diversity in '{outcome_name}' or in '{facet_name}'.")
+                    print(f"Skipping cluster {ct}: Not enough diversity in '{outcome_name}' or in '{facet_name}'.")
                 else:
                     try:
                         calculate_metrics(Dk, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
                     except Exception as e:
                         print(f"Failed to calculate metrics: {e}")
             except Exception as e:
-                print(f"Error processing cluster {ct + 1}: {e}")
+                print(f"Error processing cluster {ct}: {e}")
         print("Done")
     else:
             try:
