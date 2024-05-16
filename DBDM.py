@@ -8,10 +8,77 @@ Created on Mon Apr 15 10:08:08 2024
 import pandas as pd
 import numpy as np
 import os
+import warnings
+import matplotlib.pyplot as plt
+import matplotlib
 from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
 from sklearn.linear_model import LogisticRegression
+from minisom import MiniSom
+from sklearn.metrics import davies_bouldin_score
 
+matplotlib.use('Agg')
+warnings.filterwarnings('always')
 os.chdir(os.getcwd())
+
+
+def plot_db_scores(cluster_counts, db_scores, optimal_clusters=None):
+    plt.figure(figsize=(10, 6))
+    plt.plot(cluster_counts, db_scores, marker='o', linestyle='-', color='b')
+    
+    if optimal_clusters is not None:
+        optimal_index = cluster_counts.index(optimal_clusters)
+        optimal_score = db_scores[optimal_index]
+        plt.scatter(optimal_clusters, optimal_score, color='red', s=100, label=f'Optimal ({optimal_clusters} clusters)')
+        plt.legend()
+    
+    plt.title('Davies-Bouldin Scores by Number of Clusters')
+    plt.xlabel('Number of Clusters')
+    plt.ylabel('Davies-Bouldin Score')
+    plt.grid(True)
+    plt.xticks(cluster_counts)
+    plt.show()
+
+
+def perform_clustering(data, num_clusters):
+    som_dim = int(np.sqrt(num_clusters))
+    sigma_value = min(som_dim / 2, 1.0)
+    som = MiniSom(som_dim, som_dim, data.shape[1], sigma=sigma_value, learning_rate=0.5)
+    som.random_weights_init(data.values)
+    som.train_random(data.values, 500)
+
+    # Use train_batch for deterministic training
+    # som.train_batch(data.values, num_iteration=500)
+
+    labels = np.array([som.winner(d)[0] * som_dim + som.winner(d)[1] for d in data.values])
+    cluster_map = {}
+    for idx, label in enumerate(labels):
+        if label not in cluster_map:
+            cluster_map[label] = []
+        cluster_map[label].append(idx)
+
+    return labels, cluster_map, som
+
+
+def find_optimal_clusters(data, max_clusters):
+    db_scores = []
+    cluster_counts = []
+    for clusters in range(2, max_clusters + 1):
+        labels, cluster_map, _ = perform_clustering(data, clusters)
+        unique_labels = np.unique(labels)
+        
+        if len(unique_labels) > 1:
+            score = davies_bouldin_score(data.values, labels)
+            db_scores.append(score)
+            cluster_counts.append(clusters)
+            print(f"DB Score for {clusters} clusters: {score}")
+        else:
+            print(f"Insufficient clusters ({len(unique_labels)}) for DB score calculation at {clusters} clusters.")
+    
+    min_score_index = db_scores.index(min(db_scores))
+    optimal_clusters = cluster_counts[min_score_index]
+
+    return cluster_counts, db_scores, optimal_clusters
+
 
 def calculate_generalized_imbalance(df, facet_name):
     facet_counts = df[facet_name].value_counts()
@@ -87,10 +154,9 @@ def lp_norm(Pa, Pd, p=2):
     return np.linalg.norm(Pa - Pd, ord=p)
 
 
-
 def generalized_total_variation_distance(df, facet_name, outcome_name):
     outcome_counts = df.groupby([facet_name, outcome_name]).size().unstack(fill_value=0)
-    outcome_probabilities = outcome_counts.div(outcome_counts.sum(axis=1), axis=0)  # Normalize to probabilities
+    outcome_probabilities = outcome_counts.div(outcome_counts.sum(axis=1), axis=0)
 
     facets = outcome_probabilities.index.unique()
     n = len(facets)
@@ -102,7 +168,6 @@ def generalized_total_variation_distance(df, facet_name, outcome_name):
     count = 0
     for i in range(n):
         for j in range(i + 1, n):
-            # Calculate the L1-norm between each pair of groups using probabilities
             na = outcome_probabilities.loc[facets[i]]
             nb = outcome_probabilities.loc[facets[j]]
             l1_norm = sum(abs(na[k] - nb[k]) for k in na.index)
@@ -112,7 +177,6 @@ def generalized_total_variation_distance(df, facet_name, outcome_name):
 
     average_tvd = total_tvd / count if count > 0 else 0
     return average_tvd
-
 
 
 def kolmogorov_smirnov_metric(Pa, Pd):
@@ -167,7 +231,7 @@ def pearson_correlation(df, facet_name, outcome_name):
 
 def logistic_regression_analysis(df, facet_name, outcome_name):
     model = LogisticRegression()
-    X = df[facet_name].values.reshape(-1, 1)  # Reshape for sklearn
+    X = df[facet_name].values.reshape(-1, 1)
     y = df[outcome_name]
     model.fit(X, y)
     return model.coef_, model.intercept_
@@ -180,6 +244,7 @@ def get_user_input():
         print("Unsupported file type. Please provide a CSV or JSON file.")
         return None
     
+    use_subgroup_analysis = int(input("Enter 1 to apply subgroup analysis, 0 to skip: "))
     facet_name = input("Enter the column name for the facet (e.g., Gender): ")
     outcome_name = input("Enter the column name for the outcome (e.g., Lymphoma): ")
     subgroup_column = input("Enter the column name for subgroup categorization (optional, press Enter to skip): ")
@@ -190,7 +255,7 @@ def get_user_input():
         print("Invalid input! Please enter a valid integer for the label value.")
         return None
     
-    return file_path, facet_name, outcome_name, subgroup_column, label_value
+    return file_path, facet_name, outcome_name, subgroup_column, label_value, use_subgroup_analysis
 
 
 def load_data(file_path):
@@ -204,17 +269,7 @@ def load_data(file_path):
         return None
 
 
-def main():
-    user_input = get_user_input()
-    if user_input is None:
-        return  # Exit if the user input was invalid
-    
-    file_path, facet_name, outcome_name, subgroup_column, label_values_or_threshold = user_input
-    D = load_data(file_path)
-    if D is None:
-        return  # Exit if data loading failed
-    
-    print("")
+def calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, subgroup_column):
     print("Calculating pre-training data bias metrics...")
     
     #CLASS IMBALANCE (CI)
@@ -416,6 +471,57 @@ def main():
         print("  Intercept is", str(intercept))
     else:
         print("- LR: Protected feature is not binary or outcome is not multi-labeled.")
+
+
+def main():
+    user_input = get_user_input()
+    if user_input is None:
+        return
+    
+    file_path, facet_name, outcome_name, subgroup_column, label_values_or_threshold, use_subgroup_analysis = user_input
+    D = load_data(file_path)
+    if D is None:
+        return
+    
+    print("")
+
+    if use_subgroup_analysis == 1:
+        max_clusters = 30
+        cluster_counts, db_scores, optimal_clusters = find_optimal_clusters(D, max_clusters)
+
+        print(f"The optimal number of clusters is {optimal_clusters}")
+        plot_db_scores(cluster_counts, db_scores, optimal_clusters)
+
+        print("Applying the Minisom")
+        _, cluster_map, _ = perform_clustering(D, optimal_clusters)
+        print("")
+
+        ct = 0
+        for cluster_id, indices in cluster_map.items():
+            ct+=1
+            try:
+                print(f"Starting analysis for cluster {ct + 1} of {optimal_clusters} with {len(indices)} samples.")
+                Dk = D.iloc[indices]
+                print(f"\nAnalyzing cluster {ct + 1} / {optimal_clusters}")
+
+                print(f"Unique outcomes {len(np.unique(Dk[outcome_name]))}")
+                print(f"Unique facets {len(np.unique(Dk[facet_name]))}")
+
+                if len(np.unique(Dk[outcome_name])) == 1 or len(np.unique(Dk[facet_name])) == 1:
+                    print(f"Skipping cluster {ct + 1}: Not enough diversity in '{outcome_name}' or in '{facet_name}'.")
+                else:
+                    try:
+                        calculate_metrics(Dk, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+                    except Exception as e:
+                        print(f"Failed to calculate metrics: {e}")
+            except Exception as e:
+                print(f"Error processing cluster {ct + 1}: {e}")
+        print("Done")
+    else:
+            try:
+                calculate_metrics(D, facet_name, label_values_or_threshold, outcome_name, subgroup_column)
+            except Exception as e:
+                print(f"Failed to calculate metrics: {e}")
 
 
 if __name__ == "__main__":
